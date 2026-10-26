@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>$title$</title>
+$for(css)$
+<link rel="stylesheet" href="$css$" />
+$endfor$
+$math$
+<style>
+/* ============================================================
+   版式 v5「教材·左副区」
+   开本 210×260（21×26 cm）
+   页边距 天头 22 / 地脚 15 / 左右各 15 → 版心 180×223
+   页眉基线距纸顶 15，细线 17.6，正文自 22 起
+   版心内再分：左副区 34 + 主栏 146 → 39 字 × 38 行
+   （副区 34 里，边注占 30、留 4 缝隙；边注 30mm ≈ 10 字/行）
+   副区放注释、题号、图与表的延伸；正文一律自 30mm 处起排
+   双色：黑 + 墨蓝 #2F6F9F（与插图同族，非外加色）
+   ============================================================ */
+:root{
+  --ink:#16181a; --ink-2:#3c4145; --ink-3:#6d7478;
+  --accent:#2f6f9f;            /* 主色：与 code/bookstyle.py 的 BLUE 同值 */
+  --deep:#1e4a6b;              /* 章首页色砖 */
+  --tint:#eef3f7;
+  --rule:#c6d8e6;
+  --side:34mm;                 /* 左副区宽 */
+  --serif:"Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC",serif;
+  --sans:"Noto Sans CJK SC","Noto Sans SC","Source Han Sans SC",sans-serif;
+}
+*{ box-sizing:border-box; }
+
+/* ---------------- 屏幕（只作预览，纸面观感） ---------------- */
+html{ background:#6f6a63; }
+body{
+  margin:0; background:#6f6a63; color:var(--ink);
+  font-family:var(--serif); font-size:10.5pt; line-height:17pt;
+  -webkit-font-smoothing:antialiased;
+}
+main{
+  width:210mm; min-height:260mm; margin:10mm auto; padding:22mm 15mm 15mm 15mm;
+  background:#fff; box-shadow:0 2mm 8mm rgba(0,0,0,.45);
+}
+@media screen and (max-width:900px){
+  main{ width:auto; margin:0; padding:18mm 6mm; box-shadow:none; }
+}
+h1,h2,h3,h4{ font-family:var(--sans); }
+
+/* ---------------- 章首页：色砖落副区，章名自主栏起 ---------------- */
+h1.chapo{
+  display:flex; align-items:stretch; gap:5mm;
+  margin:0 0 9mm; padding:0; font-weight:700; color:var(--ink);
+  margin-left:0; width:180mm;
+  break-before:page; page-break-before:always;
+  break-after:avoid; page-break-after:avoid; break-inside:avoid;
+}
+h1.chapo .brick{
+  flex:0 0 26mm; height:34mm; background:var(--deep); color:#fff;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:3mm 3mm 2.4mm; text-align:center;
+}
+h1.chapo .brick .bk{
+  font-size:6pt; letter-spacing:.16em; opacity:.75; line-height:1;
+  margin-bottom:1.5mm; font-weight:400;
+}
+h1.chapo .brick .bn{ font-size:30pt; line-height:.86; font-weight:700; }
+h1.chapo .cht{ display:flex; flex-direction:column; justify-content:flex-end; padding-bottom:1mm; }
+h1.chapo .cht .cn{
+  font-size:9pt; letter-spacing:.28em; color:var(--accent); font-weight:700;
+  margin-bottom:2.5mm;
+}
+h1.chapo .cht .ct{ font-size:23pt; line-height:1.24; letter-spacing:.01em; }
+h1.chapo .cht .sub2{ font-size:10pt; color:var(--ink-3); margin-top:2.2mm; letter-spacing:.04em; font-weight:400; }
+
+/* 书末《题解》这类无章号的大标题 */
+h1.plain{
+  margin:6mm 0 10mm; padding:0 0 4mm; font-size:25pt; font-weight:700; color:var(--ink);
+  border-bottom:1.4pt solid var(--accent);
+  break-before:page; page-break-before:always; break-after:avoid;
+}
+h1.plain .sub{
+  display:block; margin-top:3mm; font-size:10pt; font-weight:400;
+  color:var(--ink-3); letter-spacing:.06em;
+}
+
+/* 章首「本章要解决的问题」 */
+h1.chapo + blockquote, blockquote.lead{
+  margin:0 0 9mm; padding:2.4mm 0 2.8mm; background:none;
+  border:none; border-top:.5pt solid var(--rule); border-bottom:.5pt solid var(--rule);
+  font-size:9.5pt; line-height:16pt; color:var(--ink-2);
+}
+blockquote.lead .leadhead{
+  font-family:var(--sans); font-size:9pt; font-weight:700; color:var(--deep);
+  letter-spacing:.16em; text-indent:0; margin:0 0 1.6mm;
+}
+h1.chapo + blockquote p, blockquote.lead p{ text-indent:0; margin:0 0 1.5pt; }
+blockquote.lead ol{ margin:.5mm 0 0; padding-left:1.7em; }
+blockquote.lead li{ font-size:9.5pt; line-height:16pt; margin:0 0 .6mm; padding-left:.2em; }
+blockquote.lead li::marker{ color:var(--accent); font-family:var(--sans); font-size:9pt; }
+
+/* ---------------- 节题：色牌 + 标题 ---------------- */
+h2{
+  display:flex; align-items:baseline; gap:2.2mm;
+  margin:26pt 0 8pt; padding:0; font-size:13.5pt; line-height:1.32;
+  font-weight:700; color:var(--ink); letter-spacing:.01em;
+  break-after:avoid; page-break-after:avoid; break-inside:avoid;
+}
+h2 .secno{
+  flex:0 0 auto; font-size:9.5pt; font-weight:700; color:#fff;
+  background:var(--accent); padding:1.2pt 5pt .6pt; border-radius:1.5pt;
+  letter-spacing:.02em; font-variant-numeric:tabular-nums;
+}
+/* 固定栏目（动手算一算 / 本章要点 / 本章术语）：通栏色条 */
+h2.colhead{
+  display:block; margin:28pt 0 8pt; padding:2pt 6pt; font-size:12pt;
+  color:#fff; background:var(--accent); border-radius:1pt;
+}
+h2.colhead span{ color:#fff; }
+/* 书末题解里的「第 4 章」小节标题 */
+h2.chs{
+  display:block; margin:24pt 0 9pt; padding:0 0 2.4pt; font-size:15pt;
+  border-bottom:.8pt solid var(--rule); color:var(--ink);
+}
+
+/* ---------------- 小节题 ---------------- */
+h3{
+  margin:19pt 0 3pt; font-size:11pt; line-height:1.4; font-weight:700;
+  color:var(--ink); break-after:avoid; break-inside:avoid;
+}
+h3::before{
+  content:""; display:inline-block; width:3.2pt; height:10.5pt;
+  background:var(--accent); margin-right:4.5pt; vertical-align:-1pt;
+}
+h3 .h3no{
+  font-family:var(--sans); font-size:11pt; font-weight:700; color:var(--accent);
+  margin-right:.55em; font-variant-numeric:tabular-nums; letter-spacing:.01em;
+}
+
+/* ---------------- 正文 ---------------- */
+p{ margin:0; text-indent:2em; line-height:17pt; text-align:justify; }
+strong{ font-weight:700; color:#000; }
+em{ font-style:normal; color:var(--ink-2); }   /* 中文不用假斜体 */
+a{ color:var(--accent); text-decoration:none; }
+
+ul,ol{ margin:7pt 0 7pt 0; padding-left:1.9em; }
+li{ margin:0 0 1.5pt; line-height:17pt; }
+li p{ text-indent:0; }
+ul{ list-style:disc; } ul li::marker{ color:var(--accent); }
+ol li::marker{ color:var(--accent); font-family:var(--sans); font-size:9.5pt; }
+ol > li{ padding-left:.38em; }   /* 序号与正文拉开，免得「1.5.5 MeV」黏成一团 */
+
+ul.steps{ list-style:none; padding-left:0; margin:5pt 0 9pt; counter-reset:step; }
+ul.steps li{ counter-increment:step; position:relative; padding-left:2.1em; line-height:16.5pt; }
+ul.steps li::before{
+  content:counter(step); position:absolute; left:0; top:0;
+  font-family:var(--sans); font-size:8.5pt; font-weight:700; color:var(--accent);
+}
+
+/* ---------------- 左副区：注释 ---------------- */
+aside.note{
+  float:left; width:30mm; margin:0 0 3mm 0;
+  padding-top:1.4mm; border-top:1.2pt solid var(--accent);
+  font-size:8pt; line-height:11.6pt; color:#4a4f53; text-align:left;
+}
+aside.note .ntag{
+  display:block; font-family:var(--sans); font-size:7.2pt; font-weight:700;
+  letter-spacing:.08em; color:var(--accent); margin-bottom:1mm;
+}
+aside.note p{ text-indent:0; margin:0 0 1.5pt; font-size:8pt; line-height:11.6pt; }
+aside.note strong{ color:var(--deep); font-weight:700; }
+aside.note ul, aside.note ol{ margin:0 0 1.5pt; padding-left:1.1em; }
+aside.note li{ font-size:8pt; line-height:11.6pt; margin:0; }
+
+/* 专有名词首现：主题蓝 + 黑体；其后括号里的英文用真斜体 */
+.term{ font-family:var(--sans); font-weight:700; color:var(--accent); }
+.en{ font-family:"DejaVu Serif","Noto Serif CJK SC",serif; font-style:italic;
+     font-size:.94em; color:var(--ink-2); }
+
+/* 本章要点：不打圆点，按段落排（首行缩进两字） */
+ul.points{ list-style:none; padding-left:0; margin:4pt 0 8pt; }
+ul.points li{ text-indent:2em; margin:0 0 2.5pt; line-height:17pt; }
+
+/* 章末题干的悬挂缩进：折行对齐到题干起点 */
+.qstem{ display:flex; text-indent:0; margin-top:0; margin-right:0; margin-bottom:4pt;
+        align-items:baseline; }
+.qstem strong{ flex:0 0 auto; margin-right:.55em; white-space:nowrap;
+               font-family:var(--sans); color:var(--deep); }
+.qstem span{ flex:1 1 auto; }   /* 题干整体作为一个 flex 项，行内公式才不会被拆散 */
+
+/* 普通引文（非旁注） */
+blockquote{
+  margin:10pt 0; padding:5pt 8pt 5.5pt; background:var(--tint);
+  border-left:2.5pt solid var(--accent); border-radius:0 1.5pt 1.5pt 0;
+  font-size:9.5pt; line-height:15.4pt; color:var(--ink-2);
+}
+blockquote p{ text-indent:0; margin:0 0 2pt; line-height:15.4pt; }
+blockquote > :last-child{ margin-bottom:0; }
+blockquote strong{ color:var(--deep); }
+
+/* ---------------- 图：满幅时向左伸进副区 ---------------- */
+figure{
+  margin:11pt 0 9pt; text-align:center; max-width:100%;
+  break-inside:avoid; page-break-inside:avoid;
+}
+/* 默认留在主栏（146mm）；只有「放不下」的宽图才伸进副区（.wide，180mm） */
+@media print{ figure{ margin-left:34mm; } }
+figure.wide{ margin-left:0; width:180mm; }
+figure img{ max-width:100%; height:auto; margin:0 auto; display:block; }
+figcaption{
+  font-family:var(--serif); font-size:8.5pt; line-height:13pt; color:var(--ink-2);
+  margin:1.8mm auto 0; max-width:118mm; text-align:center;
+  break-before:avoid; page-break-before:avoid;
+}
+figure.wide figcaption{ max-width:150mm; }
+figcaption p{ text-indent:0; margin:0; }
+figcaption .figno{ font-family:var(--sans); font-weight:700; color:var(--accent); }
+
+/* ---------------- 表：一律占满版心（含副区） ---------------- */
+table{
+  font-size:8.8pt; line-height:11.4pt; width:146mm;
+  table-layout:fixed;          /* 列宽由 shape.py 量算后写进 colgroup，不许浏览器自改 */
+  margin-left:34mm;
+  border-collapse:collapse; margin-top:6pt; margin-bottom:12pt;
+  border-top:1.5pt solid var(--ink); border-bottom:1.5pt solid var(--ink);
+}
+table.wide{ width:180mm; }        /* 开了副区的表：列宽按 180mm 算，别再压回 146 */
+caption{
+  caption-side:top; text-align:left; font-family:var(--sans);
+  font-size:9.5pt; font-weight:700; color:var(--accent); padding-bottom:3.5pt;
+}
+thead{ display:table-header-group; }
+thead th{ border-bottom:.75pt solid var(--ink); font-family:var(--sans);
+          font-weight:700; font-size:9pt; border-top:none; }
+th,td{ padding:2.2pt 3.4pt; border:none; vertical-align:middle; text-align:left; }
+td.num{ text-align:left; font-variant-numeric:tabular-nums; }   /* 内容一律左对齐 */
+table.terms{ table-layout:fixed; }
+/* 列宽一律由 colgroup 的 mm 值决定（shape.py 的 fit_tables()） */
+tbody tr{ break-inside:avoid; page-break-inside:avoid; }
+td .katex, th .katex{ white-space:normal; }
+
+/* ---------------- 题解：问题 → 解（公式｜虚线｜解析）→ 答 ---------------- */
+.work{ position:relative; margin:0 0 13pt; }
+.work .tag{
+  float:left; width:30mm; margin:0 0 2mm 0;
+  padding-top:1.2mm; border-top:1.2pt solid var(--accent);
+  font-family:var(--sans); font-size:8.6pt; font-weight:700; color:var(--accent);
+  line-height:13pt; text-indent:0;
+}
+.work .q, .work .given, .work .a{ text-indent:0; }
+.work .q{ margin:0 0 2.5pt; }
+.work .given{ margin:0 0 5pt; font-size:9.5pt; line-height:15pt; color:var(--ink-2); }
+.lab{
+  display:inline-block; font-family:var(--sans); font-size:9pt; font-weight:700;
+  color:var(--deep); margin-right:.7em; letter-spacing:.04em;
+}
+.work .steps{ margin:3pt 0 6pt; }
+.step{
+  display:grid; align-items:baseline; margin:0 0 3pt;
+  grid-template-columns:1fr 9mm var(--sayw, 62mm);
+}
+.step .eq{ white-space:nowrap; text-align:center; }
+.step .lead{
+  height:0; margin:0 1.5mm; align-self:baseline;
+  border-bottom:.75pt dotted #8b98a2; transform:translateY(-1.6pt);
+}
+.step .say{ font-size:9.5pt; line-height:14pt; color:var(--ink-2); text-align:left; }
+.step.ind .eq{ padding-left:9mm; }
+.work .a{ margin:5pt 0 0; padding-top:3pt; border-top:.4pt solid var(--rule); }
+
+/* ---------------- 公式 ---------------- */
+.katex-display{ margin:8pt 0; padding:0; max-width:100%; overflow-x:auto; overflow-y:hidden;
+                break-inside:avoid; }
+.katex{ font-size:1em; }
+.katex-error{ color:#b00; }
+
+.nw{ white-space:nowrap; }   /* 行首禁则：前一字 + 标点不可断 */
+hr{ display:none; }
+code{ font-family:"DejaVu Sans Mono",monospace; font-size:.9em; }
+
+/* ============================================================
+   印 刷
+   ============================================================ */
+@media print{
+  @page{ size:210mm 260mm; margin:22mm 15mm 15mm 15mm; }
+  @page:right{ margin:22mm 15mm 15mm 15mm; }   /* 左右等距，不镜像；天头留出页眉 */
+  @page:left{  margin:22mm 15mm 15mm 15mm; }
+  html,body{ background:#fff; }
+  main{ width:180mm; min-height:0; margin:0; padding:0; box-shadow:none; }
+  /* 副区见打印块末尾：`main > *` 与 `p` 权重相同，必须排在元素规则之后 */
+
+  body{ font-size:10.5pt; line-height:17pt; orphans:3; widows:3;
+        text-autospace:normal; text-spacing-trim:trim-start; line-break:strict; }
+  p{ margin:0; text-indent:2em; }
+
+  h1.chapo{ margin:0 0 9mm; }
+  h1.chapo .cht .ct{ font-size:23pt; }
+
+  figure{ margin:11pt 0 9pt; }
+  table{ margin:6pt 0 12pt; }
+  .katex-display{ margin:8pt 0; }
+
+  /* 溢出保险丝：任何元素宽过版心都会让 Chrome 整页缩放 */
+  main,figure,table,blockquote,.katex-display,img{ max-width:100%; }
+  td,th{ overflow-wrap:anywhere; }
+
+  /* ---- 左副区（必须放在打印块最后：`main > *` 与 `p` 权重相同，靠先后定胜负）
+     不要改成 main 的 padding——打印时它会被算成额外宽度，Chromium 把整页缩到 83%。 ---- */
+  main > *{ margin-left:34mm; }
+  main > figure.wide,
+  main > table.wide,
+  main > h1.chapo,
+  main > h1.plain,
+  main > aside.note,
+  main > .work,
+  main > blockquote.lead{ margin-left:0; }
+  .work > *:not(.tag){ margin-left:34mm; }
+  .work > .steps{ margin-left:0; }   /* 解的三列自版心左沿起：公式区吃下整个副区 */
+  /* 章末题干：彻底启用副区——整段自版心左沿（15mm）起，宽 180mm，题号与题干同行 */
+  .qstem{ margin-left:0; width:180mm; display:block; text-indent:0; }
+}
+</style>
+</head>
+<body>
+<main>
+$body$
+</main>
+</body>
+</html>

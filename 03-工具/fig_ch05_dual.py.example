@@ -1,0 +1,292 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""fig_ch05.py —— 第 5 章插图（三张）
+运行：/usr/bin/python3 code/fig_ch05.py  → 图/ch05_fig1..3.png
+"""
+import sys, os, math
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from bookstyle import *
+
+from matplotlib.patches import Rectangle, Circle, FancyArrowPatch
+from matplotlib.ticker import LogLocator, NullFormatter
+
+NA_ = 6.02214076e23
+BARN_CM2 = 1e-24
+HBARC = 197.3269804      # MeV·fm
+MN_MEV = 939.56542052
+
+# =====================================================================
+# 图 1：截面是一个“面积”
+# =====================================================================
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5.59, 2.35),
+                               gridspec_kw={"width_ratios": [1.35, 1]})
+
+ax1.set_xlim(0, 10.4)
+ax1.set_ylim(-0.9, 8.9)
+ax1.axis("off")
+
+# 靶片
+slab = Rectangle((3.75, 0.35), 0.85, 5.5, facecolor=LIGHT, edgecolor=BLUE,
+                 lw=1.2, alpha=0.75, zorder=2)
+ax1.add_patch(slab)
+ax1.text(3.56, 5.05, "靶片，厚 $\\mathrm{d}x$", ha="right", va="center",
+         fontsize=8.5, color=BLUE)
+
+ys = [1.0, 1.9, 2.8, 3.7, 4.6]
+for y in ys:
+    # 有效面积 σ（不按比例）
+    ax1.add_patch(Circle((4.18, y), 0.42, facecolor=BRICK, alpha=0.13,
+                         edgecolor=BRICK, lw=1.0, ls="--", zorder=3))
+    # 核本身
+    ax1.add_patch(Circle((4.18, y), 0.075, facecolor=BRICK,
+                         edgecolor="white", lw=0.6, zorder=4))
+
+# 入射 / 出射中子
+for y in ys:
+    ax1.add_patch(FancyArrowPatch((0.25, y), (3.55, y), arrowstyle="-|>",
+                                  mutation_scale=9, lw=1.1, color=BLUE))
+    ax1.add_patch(FancyArrowPatch((4.8, y), (8.6, y), arrowstyle="-|>",
+                                  mutation_scale=9, lw=1.1, color=BLUE,
+                                  alpha=0.55))
+# 两个标签挪到靶片下方，避开最低一条射线与白色注记框
+ax1.text(0.25, -0.55, "入射中子，通量 $\\Phi$", fontsize=8.5, color=BLUE, zorder=9)
+ax1.text(5.35, -0.55, "未发生反应的中子", fontsize=8.5, color=BLUE, alpha=0.85, zorder=9)
+
+ax1.annotate("核本身：直径 $2R\\sim10^{-14}$ m",
+             xy=(4.18, 2.8), xytext=(5.35, 2.35), fontsize=8.5, color="#333333",
+             bbox=dict(fc="white", ec="none", alpha=0.85, pad=1.2),
+             arrowprops=dict(arrowstyle="-", lw=0.8, color=GRAY,
+                             connectionstyle="arc3,rad=0.25"))
+ax1.annotate("有效面积 $\\sigma$：作用强度，\n图未按比例（可大上千倍）",
+             xy=(4.18, 3.7), xytext=(5.05, 4.35), fontsize=8.5, color=BRICK,
+             bbox=dict(fc="white", ec="none", alpha=0.85, pad=1.2),
+             arrowprops=dict(arrowstyle="-|>", lw=0.9, color=BRICK,
+                             connectionstyle="arc3,rad=0.2"))
+ax1.text(0.2, 8.86,
+         "每个核从束流里“截走”面积 $\\sigma$；\\ 单位面积上的核数 $N\\,\\mathrm{d}x$\n"
+         "$\\Rightarrow$ 被截走的束流比例 $=\\sigma N\\,\\mathrm{d}x$",
+         fontsize=8.5, va="top", color="#333333", linespacing=1.05)
+ax1.set_title("(a) 一张靶片上的“影子”", fontsize=8.5, color="#333333", pad=6)
+
+# 指数衰减
+x = np.linspace(0, 5, 400)
+ax2.plot(x, np.exp(-x), color=BLUE, lw=2)
+ax2.axhline(1 / math.e, color=GRAY, lw=0.8, ls=":")
+ax2.axvline(1.0, color=GRAY, lw=0.8, ls=":")
+ax2.plot([1.0], [1 / math.e], "o", color=BRICK, ms=5, zorder=5)
+note(ax2, 1.18, 0.50, "$x=\\lambda$ 时\n只剩 $1/e\\approx37\\%$", color=BRICK, fs=9)
+ax2.axvline(2.303, color=GRAY, lw=0.8, ls="--")
+note(ax2, 2.42, 0.14, "$x=2.3\\lambda$\n剩 $10\\%$", color="#333333", fs=8.5)
+ax2.set_xlabel("穿过物质的厚度 $x$\n（单位：平均自由程 $\\lambda$）")
+ax2.set_ylabel("未反应的中子比例 $\\Phi/\\Phi_0$")
+ax2.set_xlim(0, 5)
+ax2.set_ylim(0, 1.02)
+ax2.set_title("(b) 解出来的结果是指数衰减", fontsize=8.5, color="#333333", pad=6)
+save(fig, "ch05_fig1.png")
+
+# =====================================================================
+# 图 2：²³⁸U 的中子俘获截面（log-log），带 6.67 eV 共振放大
+# =====================================================================
+RES = [(6.673, 23.00, 1.476), (20.872, 22.86, 10.09), (36.682, 23.00, 33.55),
+       (66.031, 23.31, 24.18), (80.747, 23.39, 1.874), (102.569, 24.08, 70.77)]
+A_U, MN_U = 238.0507882, 1.00866491595
+
+
+def sig_res(E):
+    """单能级 Breit–Wigner 求和，返回俘获截面（b）。U-238 基态 I=0 → g=1。"""
+    mu = MN_MEV * A_U / (MN_U + A_U)
+    tot = np.zeros_like(E)
+    for E0, Gg_m, Gn_m in RES:
+        Gn, Gg = Gn_m * 1e-3, Gg_m * 1e-3
+        G = Gn + Gg
+        lam_fm = HBARC / np.sqrt(2 * mu * E0 * 1e-6)
+        s0 = 4 * np.pi * lam_fm**2 / 100.0 * Gn * Gg / G**2
+        y = 2 * (E - E0) / G
+        # 单能级 Breit–Wigner 的俘获截面：σ0 里已经含 (Γn/Γ)(Γγ/Γ)，
+        # 这里再乘一次 Γγ/Γ 会把峰高压掉 6%（20900 → 22200 的那处老错）
+        tot += s0 * np.sqrt(E0 / E) / (1 + y**2)
+    return tot
+
+
+def sig_1v(E):
+    return 2.683 * np.sqrt(0.0253 / E)
+
+
+grid = [np.logspace(-3, np.log10(115), 1600)]
+for E0, _, _ in RES:
+    grid.append(np.linspace(E0 - 0.35, E0 + 0.35, 4000))
+E = np.unique(np.concatenate(grid))
+E = E[E > 0]
+sig = sig_res(E) + sig_1v(E)
+
+fig, (ax, axi) = plt.subplots(1, 2, figsize=(5.59, 2.44),
+                              gridspec_kw={"width_ratios": [1.5, 1]})
+
+ax.loglog(E, sig, color=BLUE, lw=1.1)
+ax.loglog(E, sig_1v(E), color=BRICK, lw=1.3, ls="--")
+ax.plot([0.0253], [2.683], "o", color=BRICK, ms=6, zorder=6)
+ax.annotate("热中子 0.0253 eV\n2.683 b", xy=(0.0253, 2.683), xytext=(0.055, 0.017),
+            fontsize=8.5, color=BRICK,
+            arrowprops=dict(arrowstyle="-|>", lw=0.9, color=BRICK,
+                            connectionstyle="arc3,rad=-0.25"))
+note(ax, 0.0022, 1.05, "$\\sigma\\propto 1/v$", color=BRICK, fs=9.5)
+ax.annotate("6.67 eV\n$\\approx2.2\\times10^{4}$ b", xy=(6.673, 2.2e4),
+            xytext=(0.085, 2.2e3), fontsize=8.5, color=BRICK, va="bottom",
+            arrowprops=dict(arrowstyle="-|>", lw=0.9, color=BRICK,
+                            connectionstyle="arc3,rad=-0.25"))
+ax.annotate("20.9 eV", xy=(20.872, 2.6e4), xytext=(40, 5.0e4), fontsize=8.5,
+            color=GRAY, arrowprops=dict(arrowstyle="-", lw=0.7, color=GRAY))
+ax.set_xlabel("中子能量 $E$ (eV)")
+ax.set_ylabel("$^{238}$U 俘获截面 $\\sigma_\\gamma$ (b)")
+ax.set_xlim(1e-3, 115)
+ax.set_ylim(1e-3, 1.2e5)
+ax.set_title("(a) 从 0.001 eV 到 105 eV", fontsize=8.5, color="#333333", pad=6)
+
+# 放大：6.4–7.0 eV
+Ez = np.linspace(6.38, 7.02, 1200)
+sz = sig_res(Ez) + sig_1v(Ez)
+axi.plot(Ez, sz, color=BLUE, lw=1.6)
+axi.axvline(6.673, color=GRAY, lw=0.7, ls=":")
+FWHM = 0.02448
+peak_z = 2.22e4      # 静止靶、0 K 的峰高（标准单能级 B-W）
+axi.hlines(peak_z / 2, 6.673 - FWHM / 2, 6.673 + FWHM / 2, color=BRICK, lw=2.2)
+axi.hlines(peak_z / 2, 6.673 - 0.10, 6.673 + 0.10, color=BRICK, lw=0.7, ls=":")
+axi.annotate("半高全宽 $\\Gamma=24.5$ meV", xy=(6.673, 1.11e4), xytext=(6.70, 1.42e4),
+             fontsize=8.5, color=BRICK,
+             arrowprops=dict(arrowstyle="-|>", lw=0.9, color=BRICK,
+                             connectionstyle="arc3,rad=0.25"))
+note(axi, 6.395, 2.44e4, "峰顶 $\\sigma_0\\Gamma_\\gamma/\\Gamma\\approx2.22\\times10^4$ b",
+     color="#333333", fs=8.5, ha="left", va="center")
+axi.set_xlabel("中子能量 $E$ (eV)")
+axi.set_ylabel("$\\sigma_\\gamma$ (b)")
+axi.set_xlim(6.38, 7.02)
+axi.set_ylim(0, 2.6e4)
+axi.set_title("(b) 把 6.67 eV 那个峰横向放大", fontsize=8.5, color="#333333", pad=6)
+note(axi, 6.85, 2.0e3, "共振宽 24.5 meV，\n位置 6.673 eV：\n宽/位置 $\\approx4\\times10^{-3}$",
+     color=GRAY, fs=8.5)
+save(fig, "ch05_fig3.png")  # U-238 曲线 → 图 5-3
+
+# =====================================================================
+# 图 3：石墨里吸收平均自由程随能量的变化
+# =====================================================================
+rho, M_C = 1.75, 12.011   # 反应堆级石墨（正文 §5.3 的口径）
+sig_a0, sig_s0 = 3.5e-3, 4.7          # b, @0.0253 eV
+N_C = rho / M_C * NA_
+lam_s = 1 / (sig_s0 * BARN_CM2 * N_C)          # cm
+lam_tr = 1 / (sig_s0 * BARN_CM2 * N_C * (1 - 2 / 36))
+
+E3 = np.logspace(-4, 1, 500)
+lam_a = 1 / (sig_a0 * np.sqrt(0.0253 / E3) * BARN_CM2 * N_C) / 100  # m
+
+fig, ax = plt.subplots(figsize=(5.59, 3.36))
+ax.loglog(E3, lam_a, color=BRICK, lw=2.1, label="吸收平均自由程 $\\lambda_a=1/(\\sigma_a N)$")
+ax.axhline(lam_s / 100, color=BLUE, lw=1.8, label="散射平均自由程 $\\lambda_s$（≈2.4 cm）")
+ax.plot([0.0253], [32.6], "o", color=BRICK, ms=7, zorder=6)
+ax.annotate("热中子 0.0253 eV：$\\lambda_a=32.6$ m", xy=(0.0253, 32.6),
+            xytext=(0.06, 4.5), fontsize=8.5, color=BRICK,
+            arrowprops=dict(arrowstyle="-|>", lw=0.9, color=BRICK,
+                            connectionstyle="arc3,rad=0.2"))
+# 「能量高 100 倍 → 截面小 10 倍 → 走得远 10 倍」这条正文已讲透，
+# 图内不再重复：放哪儿都压曲线或溢出框外。
+note(ax, 1.6e-4, 0.035, "在石墨里，中子要散射约 1342 次（走 32.6 m）才轮到一次吸收",
+     color=BLUE, fs=8.5)
+ax.set_xlabel("中子能量 $E$ (eV)")
+ax.set_ylabel("平均自由程 $\\lambda$ (m)")
+ax.set_xlim(1e-4, 10)
+ax.set_ylim(4e-3, 2e3)
+ax.legend(loc="upper left", frameon=True, framealpha=0.92)
+save(fig, "ch05_fig2.png")  # 石墨 mfp → 图 5-2
+
+
+# =====================================================================
+# 图 4：几何靶 vs 量子靶 —— πR² 与波长 λ 的尺度对比
+# =====================================================================
+from matplotlib.patches import Circle as _Circle
+
+R10_FM = 1.2 * 10 ** (1 / 3)                # ¹⁰B 半径 fm
+PI_R2_10 = math.pi * R10_FM ** 2 / 100.0    # b
+SIG_A_10 = 3840.0                           # b，热中子吸收
+RATIO = SIG_A_10 / PI_R2_10
+LAM_DB = 1.80e-10                           # m，0.0253 eV 中子
+DIA_10 = 2 * R10_FM * 1e-15                 # m
+
+fig = plt.figure(figsize=(5.59, 4.1))
+gs = fig.add_gridspec(2, 2, height_ratios=[1.45, 1.0], hspace=0.55, wspace=0.30)
+
+# ---------------- (a) 几何靶 ----------------
+ax = fig.add_subplot(gs[0, 0])
+ax.set_xlim(0, 6.0)
+ax.set_ylim(0.2, 5.4)
+ax.set_aspect("equal")
+ax.axis("off")
+ax.add_patch(_Circle((3.0, 2.6), 1.0, facecolor=LIGHT, edgecolor=BLUE,
+                     lw=1.3, alpha=0.85, zorder=2))
+ax.add_patch(_Circle((3.0, 2.6), 0.12, facecolor=BRICK, edgecolor="white",
+                     lw=0.6, zorder=4))
+ax.add_patch(FancyArrowPatch((0.15, 2.6), (2.80, 2.6), arrowstyle="-|>",
+                             mutation_scale=10, lw=1.5, color=BRICK, zorder=5))
+note(ax, 0.15, 3.05, "撞上 → 反应", color=BRICK, fs=8.8,
+     bbox=dict(fc="white", ec="none", alpha=0.85, pad=1.2))
+ax.add_patch(FancyArrowPatch((0.15, 4.60), (5.75, 4.60), arrowstyle="-|>",
+                             mutation_scale=10, lw=1.3, color=GRAY, ls="--"))
+note(ax, 0.15, 4.72, "没扫到 → 直接过去", color=GRAY, fs=8.8)
+ax.annotate("", xy=(3.0, 1.05), xytext=(4.0, 2.55),
+            arrowprops=dict(arrowstyle="<->", color=BLUE, lw=1.0))
+note(ax, 3.72, 1.12, "$R$", color=BLUE, fs=10)
+ax.text(3.0, 0.42, "面积 $=\\pi R^2=%.2f$ b" % PI_R2_10,
+        ha="center", fontsize=8.5, color=BLUE)
+ax.set_title("(a) 几何靶：小球挡小球", fontsize=8.5, color="#333333", pad=8)
+
+# ---------------- (b) 量子靶 ----------------
+ax = fig.add_subplot(gs[0, 1])
+ax.set_xlim(0, 10.0)
+ax.set_ylim(0.2, 6.2)
+ax.set_aspect("equal")
+ax.axis("off")
+xs = np.linspace(0.0, 10.0, 1200)
+ax.plot(xs, 3.4 + 0.95 * np.sin(2 * np.pi * xs / 3.1), color=BLUE, lw=1.7)
+ax.add_patch(_Circle((5.0, 3.4), 1.50, facecolor=BRICK, alpha=0.10,
+                     edgecolor=BRICK, lw=1.1, ls="--", zorder=1))
+ax.add_patch(_Circle((5.0, 3.4), 0.09, facecolor=BRICK, edgecolor="white",
+                     lw=0.5, zorder=6))
+ax.annotate("核：直径只有 %.1f fm" % (DIA_10 * 1e15), xy=(5.0, 3.4),
+            xytext=(6.20, 4.75), fontsize=8.5, color=BRICK,
+            bbox=dict(fc="white", ec="none", alpha=0.85, pad=1.2),
+            arrowprops=dict(arrowstyle="-|>", color=BRICK, lw=0.9,
+                            connectionstyle="arc3,rad=0.25"))
+ax.annotate("有效面积 $\\sigma=3840$ b\n（示意，不按比例）", xy=(3.85, 2.60),
+            xytext=(0.20, 0.72), fontsize=8.5, color=BRICK,
+            bbox=dict(fc="white", ec="none", alpha=0.85, pad=1.2),
+            arrowprops=dict(arrowstyle="-|>", color=BRICK, lw=0.9,
+                            connectionstyle="arc3,rad=-0.2"))
+ax.annotate("", xy=(3.50, 1.98), xytext=(6.50, 1.98),
+            arrowprops=dict(arrowstyle="<->", color=GREEN, lw=1.2))
+note(ax, 4.05, 2.06, "$\\lambda=1.80$ Å", color=GREEN, fs=9.2,
+     bbox=dict(fc="white", ec="none", alpha=0.85, pad=1.0))
+ax.text(0.15, 5.95, "同一个中子换一副面孔：\n波长是核直径的 %.1f 万倍" % (LAM_DB / DIA_10 / 1e4),
+        fontsize=8.5, color="#333333", va="center")
+ax.set_title("(b) 量子靶：一列长波扫过一个小点", fontsize=8.5, color="#333333", pad=8)
+
+# ---------------- (c) 同一根对数尺 ----------------
+ax = fig.add_subplot(gs[1, :])
+labels_c = ["几何截面 $\\pi R^2$", "实测截面 $\\sigma$"]
+vals_c = [PI_R2_10, SIG_A_10]
+yy = [1, 0]
+ax.barh(yy, vals_c, color=[BLUE, BRICK], height=0.42, alpha=0.88)
+ax.set_xscale("log")
+ax.set_xlim(0.05, 3e4)
+ax.set_yticks(yy)
+ax.set_yticklabels(labels_c, fontsize=8.5)
+ax.set_ylim(-0.6, 1.6)
+ax.set_xlabel("截面 (b，对数坐标)")
+ax.text(PI_R2_10 * 1.6, 1, "%.2f b" % PI_R2_10, va="center", fontsize=8.5,
+        color="#333333")
+ax.text(SIG_A_10 * 1.6, 0, "3840 b", va="center", fontsize=8.5, color="#333333")
+ax.text(90, 0.5, "相差 %.1f×10$^4$ 倍\n（4.3 个数量级）" % (RATIO / 1e4),
+        fontsize=8.5, color="#333333", ha="center", va="center")
+ax.grid(axis="y", visible=False)
+ax.set_title("(c) ¹⁰B 的两个“面积”", fontsize=8.5, color="#333333", pad=8)
+
+save(fig, "ch05_fig4.png")
+print("\n[fig_ch05] 图 5-4：πR²(¹⁰B)=%.3f b, σ=%.0f b, 比值 %.0f, 波长/核直径=%.0f"
+      % (PI_R2_10, SIG_A_10, RATIO, LAM_DB / DIA_10))
