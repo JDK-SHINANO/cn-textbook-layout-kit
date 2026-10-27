@@ -1,7 +1,7 @@
 ---
 name: hep-textbook-rebuild
 description: "Use when 重排/修订《从零开始的核物理与核能》全书（版面＋文风）。"
-version: 2.0.1
+version: 2.0.2
 author: Shinano
 license: MIT
 platforms: [linux]
@@ -306,7 +306,7 @@ SAMPLE = BOOK/版式对照_有机化学风/    ← 装配车间
 
 八条硬规矩：
 
-1. **README 由打包脚本复制进暂存目录**，别先手写再跑脚本——脚本开头的 `rm -rf "$STAGE"` 会把它一并删掉（症状：暂存目录看着对，zip 里却没有 README）。源文件放在工具目录里（如 `工具/套件README.md`）。
+1. **说明文件由打包脚本复制进暂存目录，且源文件只留一份**：别先手写再跑脚本——脚本开头的 `rm -rf "$STAGE"` 会把它一并删掉。源放在工具目录（`工具/README.md` 对外、`工具/套件README.md` 详说明、`工具/LICENSE`），脚本各拷一份到 `README.md`、`套件说明.md`、`LICENSE`，改完再把前两者拷回仓库根（否则仓库与 zip 两套说明各说各话）。**发 Release 前必须把 zip 解压与仓库 `git ls-tree` 逐文件比 blob（`git hash-object`）**：漏 LICENSE、README 版本不同步都是这么查出来的。
 2. **绝对路径一律参数化**：`build.sh` 里写死的 PyMuPDF 解释器 sed 成 `${PYMUPDF:-python3}`；`BOOK/`、`SAMPLE/` 这些本机路径写进 README 的目录约定，不要带出包外。
 3. **封包前对包内每个 `.py` 跑 `python3 -c "import ast;ast.parse(open(f,encoding='utf-8').read())"`**——实测过技能里一个脚本两句写在同一行、`SyntaxError` 根本跑不起来；语法错的工具比没有更坑人。解压后再跑一次，确认包内无误。
 4. **样张只留十张以内的代表页**（章首、题干满宽、术语表、题解、宽图、窄图、页眉、要点……），不要历次迭代的 `校_*.png` 全塞进去；包会从 5 MB 涨到 20 MB，发不出去。
