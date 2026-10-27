@@ -1,7 +1,7 @@
 ---
 name: hep-textbook-rebuild
 description: "Use when 重排/修订《从零开始的核物理与核能》全书（版面＋文风）。"
-version: 2.0.0
+version: 2.0.1
 author: Shinano
 license: MIT
 platforms: [linux]
