@@ -17,7 +17,7 @@
   --out         输出 PNG 路径，默认 /tmp/guides_p<page>.png
 
 依赖 pymupdf + Pillow；系统 python 无 pymupdf 时用装了它的解释器
-（本机：~/.hermes/Claw_Shinano/tool/marker-pdf-env/bin/python）。
+（用 `PYMUPDF=<那个解释器>` 指定）。
 """
 import argparse
 
