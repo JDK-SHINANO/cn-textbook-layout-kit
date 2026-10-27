@@ -312,11 +312,14 @@ SAMPLE = BOOK/版式对照_有机化学风/    ← 装配车间
 4. **样张只留十张以内的代表页**（章首、题干满宽、术语表、题解、宽图、窄图、页眉、要点……），不要历次迭代的 `校_*.png` 全塞进去；包会从 5 MB 涨到 20 MB，发不出去。
 5. **样张的图要与正文、与《图表规格》同代**：正文 v8 引用 5 张图，若样张的图目录还是 v2 那套（只 4 张、146/180 mm），出图时少一张，图注整体错位一格（图 5-2 的注落到图 5-1 上），且与 65 mm 规格互相打脸。→ 样张照 `图v3/chNN/*.svg` 落盘（放进 `fig5_chNN/` 供 `build.sh` 直接用，免得 figs.py 重画），封包前跑 `figcheck.py <样张图目录>`，并数「图注数 = 正文唯一图引用数」。
 6. **交付说明分两层**：顶层 `README.md` 面向陌生人（参数一张表、依赖、怎么 build、已知缺陷）；原包里的详说明改名 `套件说明.md` 一并留着，两者不重复。
-7. **README 用开发者口吻，不用 AI 口吻**：开头一句说清工具干什么，接规格表、依赖、一段可粘贴的命令、“几处容易踩到的地方”（症状→病根→怎么改）。禁“一图看懂”“三件最有用的东西”“已知缺陷（不是没做）”这类标题。插 3–4 张示例图（`<img src="05-样张/…png" width="420">` 两两并排，并在下一行写图说）；最后加一节「看不懂文档的话」：整包下载丢给 AI，附一句“读 SKILL.md 与套件说明，照流程排我的 src/”。
+7. **README 用开发者口吻，不用 AI 口吻**：开头一句说清工具干什么，接规格表、依赖、一段可粘贴的命令、“几处容易踩到的地方”（症状→病根→怎么改）。禁“一图看懂”“三件最有用的东西”“已知缺陷（不是没做）”这类标题。插 3–4 张示例图（`<img src="05-样张/…png" width="420">` 两两并排，并在下一行写图说）；最后加一节「看不懂文档的话」：整包下载丢给 AI，附一句“读 SKILL.md 与套件说明，照流程排我的 src/”。**文案写成后必须过一遍 `humanize` skill**（英文／中文两本目录的合订本，`skill_view(name='humanize')`）：用户明确要求交付文案去 AI 腔，不是可选项。中文里最常见的五处痕迹是「——」连环、『不是 A 而是 B』、加粗当小标题的内联清单、“首先／其次／综上”、小节末尾一句话格言。技术文档里加粗与破折号只有在承载表格/步骤时才保留。
 8. **README 里的图要验两道**：`raw.githubusercontent.com/…/main/<路径>` 逐张 `curl -o /dev/null -w %{http_code}` 应回 200；再 `curl` 仓库主页，确认渲染后 HTML 里有绝对化的 `src="/<账>/<repo>/raw/main/…"`——相对路径写错时页面只显示破图标。**校园网/代理环境下 raw 域名可能整个不通（curl 回 000、/raw/ 回 302 不跟到 objects.githubusercontent.com）**，此时改走 `gh api repos/<账>/<repo>/contents/<urlencode 路径> --jq .sha` 与本地 `git hash-object <文件>` 对比 blob sha，一致即证明远端字节无误，不要据此判定图挂了。
 
 开源到 GitHub：
 
 - `gh repo create <账>/<repo> --public --source=. --remote=origin --push`；仓库里放**解压后的内容**（可直接翻阅），zip 作为 **Release 附件**，不同时提交 zip。
-- 许可证要与 README 的说法一致：README 写「不必署名」就别选要求保留声明的 MIT（选 0BSD/Unlicense）；不一致时以许可证为准、README 改口。
+- 许可证统一 **MIT**（用户已定，不要再问 0BSD/Unlicense）：zip 根上必须有 `LICENSE` 正文（MIT 包不带许可正文等于没许），文案一律写「MIT，保留版权声明」，**不许再写「随取随用，不必署名」**；两者冲突时改文案，不改协议。
+- **发 Release**：`gh release create <tag> --title … --notes-file notes.md --latest <zip>`；只改说明时 `gh release edit <tag> --notes-file …`（不动附件），附件重打后用 `gh release upload <tag> --clobber <zip>`。
+- **tag 必须钉在 zip 那版源码上**：先建 Release、后补提交（改版本号、修文案）时，tag 会留在旧提交，冲着 tag 翻源码的人拿到的与 zip 不一致。→ 补完提交后 `git tag -f <tag> <HEAD>` + `git push -f origin refs/tags/<tag>`，再用 `gh api repos/…/git/ref/tags/<tag> --jq .object.sha` 核等于 `git rev-parse HEAD`。
+- **附件按服务端摘要核**：`gh api repos/…/releases/tags/<tag> --jq '.assets[]|"\(.name) \(.size) \(.state) \(.digest)"'` 的 digest 就是 sha256，与本机 `sha256sum <zip>` 逐字对；`gh release view --json` **没有 `isLatest` 字段**（只有 apiUrl/assets/author/body/createdAt/id/isDraft/isPrerelease/name/publishedAt/tagName/targetCommitish/tarballUrl/uploadUrl/url/zipballUrl），Latest 看 `gh release list` 的列。
 - 推完必须复核三重：`gh repo view --json visibility,licenseInfo,repositoryTopics`、`gh api repos/…/git/trees/main?recursive=1 --jq '[.tree[]|select(.type=="blob")]|length'`、`gh release view --json assets`。别信 `gh repo create` 那一行输出。
