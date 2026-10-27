@@ -44,14 +44,21 @@ def headings(html_path):
     """从塑形后的 HTML 里取标题序列：(level, 页眉用文字)。"""
     src = open(html_path, encoding="utf-8").read()
     out = []
-    for m in re.finditer(r'<h1 class="(?:chapo|plain)".*?</h1>|<h2[^>]*>.*?</h2>', src, re.S):
+    last_ch = ""
+    for m in re.finditer(r'<h1 class="(?:chapo|plain)".*?</h1>|<h2[^>]*>.*?</h2>|<h3[^>]*>.*?</h3>', src, re.S):
         blk = m.group(0)
-        lvl = 1 if blk.startswith("<h1") else 2
+        lvl = 1 if blk.startswith("<h1") else (2 if blk.startswith("<h2") else 3)
         txt = strip_tags(blk)
         txt = re.sub(r"\s+", " ", txt)
         # 章首页那团里含 CHAPTER 与重复章号，重构成「第 4 章　射线与物质」
         if lvl == 2:
             g = re.search(r"<span class=\"secno\">([^<]+)</span>", blk)
+            if g:
+                no = g.group(1).strip()
+                rest = re.sub(r"^\s*" + re.escape(no), "", txt).strip()
+                txt = f"{no}\u3000{rest}"
+        elif lvl == 3:
+            g = re.search(r"<span class=\"h3no\">([^<]+)</span>", blk)
             if g:
                 no = g.group(1).strip()
                 rest = re.sub(r"^\s*" + re.escape(no), "", txt).strip()
@@ -62,20 +69,32 @@ def headings(html_path):
             g = re.search(r"第\s*(\d+)\s*章[\s\u3000]*(.*)$", txt)
             if g:
                 txt = f"第 {g.group(1)} 章　{g.group(2).strip()}"
+        if lvl == 1:
+            last_ch = txt
+        elif 'class="colhead"' in blk and last_ch:
+            # 「本章要点」「动手算一算」这类栏目每章同名，书签里加章号前缀，避免 17 组重名
+            txt = f"{last_ch.split('　')[0]}　{txt}"
         out.append((lvl, txt))
     return out
 
 
-def locate(doc, items):
-    """按文字在页面上出现的位置，给每条标题定页（单调向右搜索，避免重名误判）。"""
+def locate(items, page_texts, skip=()):
+    """按文字在页面上出现的位置给标题定页（单调向右搜索，避免重名误判）。
+
+    page_texts 预先算好（每页一次 get_text），否则 164 条标题 × 372 页会把
+    get_text 调六万次，实测 199 秒——预取后降到 2 秒级。
+    skip 里是目录页：目录把每个标题都印了一遍，不跳过的话书签会全指到目录上。
+    """
     marks = []
     cur = 0
+    n = len(page_texts)
     for lvl, txt in items:
         key = re.sub(r"\s+", "", txt)[:14]
         found = None
-        for p in range(cur, doc.page_count):
-            flat = re.sub(r"\s+", "", doc[p].get_text())
-            if key and key in flat:
+        for p in range(cur, n):
+            if p in skip:
+                continue
+            if key and key in page_texts[p]:
                 found = p
                 break
         if found is None:
@@ -88,9 +107,22 @@ def locate(doc, items):
 def main(pdf_path, html_path):
     doc = fitz.open(pdf_path)
     items = headings(html_path)
-    marks = locate(doc, items)
+    raw = [doc[i].get_text() for i in range(doc.page_count)]
+    page_texts = [re.sub(r"\s+", "", t) for t in raw]
+    # 目录页：首页顶部就是「目　录」，其后各页会同时列出「附录」
+    toc_pages = set()
+    for i in range(min(12, doc.page_count)):
+        if "目录" in page_texts[i][:24] or ("目录" in page_texts[i] and "附录" in raw[i]):
+            toc_pages.add(i)
+    marks = locate(items, page_texts, skip=toc_pages)
 
     chap_pages = {p for p, lvl, _ in marks if lvl == 1}
+    # 封面、版权页、目录页都在第一章之前，不排页眉页码
+    first_chap = min((pg - 1 for lvl, t, pg in doc.get_toc()
+                      if lvl == 1 and re.match(r"第\s*\d+\s*章", t)), default=0)
+    # 页码从目录页算第 1 页（封面、空白页、版权页不计数）
+    toc_first = next((i for i in range(min(12, doc.page_count))
+                      if page_texts[i].startswith("目录")), 0)
     chap_of, sec_of = {}, {}
     cur_ch, cur_sec = "", ""
     idx = {}
@@ -113,7 +145,12 @@ def main(pdf_path, html_path):
             continue
         if p in chap_pages:            # 章首页不排页眉
             continue
-        num = str(p + 1)
+        if p < toc_first:              # 封面、空白页、版权页：不排页眉页码
+            continue
+        front = p < first_chap        # 目录页
+        if front and "录" not in page.get_text():
+            continue
+        num = str(p - toc_first + 1)
         recto = (p % 2 == 0)           # 第 1 张为单页码（右页）
         # 页眉基线距纸顶 15mm、细线 17.6mm；版心自 22mm 起，中间留 4.4mm
         y_txt = 15.0 * MM
@@ -125,7 +162,7 @@ def main(pdf_path, html_path):
         page.draw_line(fitz.Point(x_in, y_rule), fitz.Point(x_out, y_rule),
                        color=RULE, width=0.5)
 
-        label = sec_of[p] if recto else chap_of[p]
+        label = "目录" if front else (sec_of[p] if recto else chap_of[p])
         if not label:
             label = chap_of[p] or ""
 
@@ -167,7 +204,7 @@ def main(pdf_path, html_path):
     if toc:
         doc.set_toc(toc)
     tmp = pdf_path + ".tmp"
-    doc.save(tmp, garbage=3, deflate=True)
+    doc.save(tmp, garbage=1, deflate=True)
     doc.close()
     os.replace(tmp, pdf_path)
     print(f"finish: {fitz.open(pdf_path).page_count} 页，书签 {len(toc)} 条，页眉已排")

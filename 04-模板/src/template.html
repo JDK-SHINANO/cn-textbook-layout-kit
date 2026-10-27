@@ -61,8 +61,10 @@ h1.chapo .brick{
   padding:3mm 3mm 2.4mm; text-align:center;
 }
 h1.chapo .brick .bk{
-  font-size:6pt; letter-spacing:.16em; opacity:.75; line-height:1;
-  margin-bottom:1.5mm; font-weight:400;
+  /* CY/T 200 4.8.4.5：细小文字不用反白。6 pt 反白笔画约 0.15 mm，印出来易糊成白条，
+     故放到 8 pt（笔画 ≈0.21 mm），并提不透明度。 */
+  font-size:8pt; letter-spacing:.14em; opacity:.88; line-height:1;
+  margin-bottom:1.2mm; font-weight:400;
 }
 h1.chapo .brick .bn{ font-size:30pt; line-height:.86; font-weight:700; }
 h1.chapo .cht{ display:flex; flex-direction:column; justify-content:flex-end; padding-bottom:1mm; }
@@ -198,6 +200,63 @@ blockquote p{ text-indent:0; margin:0 0 2pt; line-height:15.4pt; }
 blockquote > :last-child{ margin-bottom:0; }
 blockquote strong{ color:var(--deep); }
 
+/* ---------------- 前置页：版权页与目录（照《基础有机化学》的骨相） ---------------- */
+.copyright{ position:relative; height:223mm; break-after:page; page-break-after:always;
+            padding-top:52mm; font-family:var(--serif); }
+.cp-title{ font-size:22pt; font-weight:700; text-align:center; margin:0 0 4mm; text-indent:0; }
+.cp-sub{ font-size:11pt; text-align:center; color:var(--ink-2); margin:0 0 9mm; text-indent:0; }
+.cp-rule{ width:40mm; height:1pt; background:var(--accent); margin:0 auto 14mm; }
+.cp-line{ font-size:9.5pt; text-align:center; margin:0 0 3.2mm; color:var(--ink-2); text-indent:0; }
+/* 自印说明：离底约 60 mm、居中、不用句号，一行一句 */
+.cp-note{ position:absolute; left:0; right:0; bottom:60mm; text-align:center;
+          font-size:8pt; line-height:14pt; color:var(--ink-2); text-indent:0; margin:0; }
+.blankpage{ height:223mm; break-after:page; page-break-after:always; }
+
+/* 目录：每章一块，块内双栏；章条 = 蓝底方框 + 章名 + 通栏下划线 + 页码 */
+.tocpage{ }
+.tochead{ font-family:var(--sans); font-size:15pt; font-weight:700; text-align:center;
+          letter-spacing:.25em; margin:0 0 7mm; }
+.toc-chap{ margin:0 0 4.6mm; }
+/* 章号在副区里右对齐（右沿贴副区右沿），章名自主区左沿起，同一行 */
+.toc-bar{ display:flex; align-items:baseline; break-inside:avoid; break-after:avoid; }
+.toc-no{ flex:0 0 34mm; display:flex; justify-content:flex-end; padding-right:3mm;
+         box-sizing:border-box; }
+.toc-box{ background:var(--accent); color:#fff; font-family:var(--sans);
+          font-size:9pt; font-weight:700; padding:.9mm 1.8mm; white-space:nowrap; }
+.toc-name{ font-family:var(--sans); font-weight:700; font-size:12pt;
+           margin-left:0; white-space:nowrap; }
+.toc-line{ flex:1 1 auto; border-bottom:0.75pt solid var(--accent); margin:0 2.2mm 1.6mm; }
+.toc-pg{ font-family:var(--sans); font-size:8.5pt; color:var(--accent); white-space:nowrap; }
+/* 条目只在主区：主区 146mm 一分为二，每章条目左右各半（读序先左后右） */
+.toc-cols{ margin-left:34mm; width:146mm; column-count:2; column-gap:7mm;
+           column-fill:balance; margin-top:1.6mm; }
+/* 一级（章）黑体、二级（N.M 大节）宋体、三级（N.M.K 小节）仿宋 */
+.toc-sec{ display:flex; align-items:baseline; margin:0; text-indent:0; break-inside:avoid; }
+.toc-sec.lv2{ font-family:var(--serif); font-size:8.8pt; line-height:13.2pt; }
+.toc-sec.lv3{ font-family:"仿宋","FangSong",var(--serif); font-size:8.3pt;
+              line-height:12.4pt; padding-left:4.5mm; }
+.toc-sec .toc-t{ flex:0 1 auto; }
+.toc-sec .toc-dot{ flex:1 1 auto; border-bottom:0.5pt dotted #b9c6d2; margin:0 1.6mm 1.1mm; }
+.toc-sec .toc-p{ flex:0 0 auto; font-family:var(--sans); font-size:8pt;
+                 color:var(--ink-2); min-width:6mm; text-align:right; }
+
+/* ---------------- 封面（白底 + 顶部纹样 + 大字书名，右对齐） ---------------- */
+.cover{ position:relative; height:223mm; background:#fff; text-align:right;
+        break-after:page; page-break-after:always; }
+.cover p{ text-align:right; }
+.cover img.cv-pattern{ width:180mm; display:block; margin:0 0 15mm; }
+.cover .cv-series{ font-family:var(--sans); font-size:8.5pt; color:#6b6b6b;
+                   margin:0 0 6mm; text-indent:0; letter-spacing:.04em; }
+.cover .cv-title{ font-family:var(--sans); font-size:33pt; font-weight:900;
+                  line-height:1.2; margin:0 0 7mm; letter-spacing:.02em; color:#111; }
+.cover .cv-en{ font-family:var(--serif); font-style:italic; font-size:10pt;
+               color:#4a4a4a; margin:0 0 13mm; text-indent:0; }
+.cover .cv-tab{ display:inline-block; background:#b23a34; color:#fff;
+                font-family:var(--sans); font-size:9pt; padding:1.8mm 4mm;
+                letter-spacing:.1em; }
+.cover .cv-foot{ position:absolute; bottom:4mm; left:0; right:0;
+                 font-family:var(--sans); font-size:9pt; color:#6b6b6b; text-align:right; }
+
 /* ---------------- 图：满幅时向左伸进副区 ---------------- */
 figure{
   margin:11pt 0 9pt; text-align:center; max-width:100%;
@@ -226,9 +285,15 @@ table{
 }
 table.wide{ width:180mm; }        /* 开了副区的表：列宽按 180mm 算，别再压回 146 */
 caption{
-  caption-side:top; text-align:left; font-family:var(--sans);
-  font-size:9.5pt; font-weight:700; color:var(--accent); padding-bottom:3.5pt;
+  caption-side:top; display:table-caption;
+  width:146mm; padding:0; box-sizing:border-box;   /* 与表同宽，文字居中 */
+  text-align:center; font-family:var(--serif);
+  font-size:8.5pt; line-height:13pt; font-weight:400; color:var(--ink-2);
+  margin-top:8pt; margin-bottom:1.8mm; margin-left:0; margin-right:0;
+  break-after:avoid; page-break-after:avoid;
 }
+table.wide caption{ width:180mm; padding:0; }
+caption .tabno{ font-family:var(--sans); font-weight:700; color:var(--accent); }
 thead{ display:table-header-group; }
 thead th{ border-bottom:.75pt solid var(--ink); font-family:var(--sans);
           font-weight:700; font-size:9pt; border-top:none; }
@@ -286,6 +351,9 @@ code{ font-family:"DejaVu Sans Mono",monospace; font-size:.9em; }
   @page:right{ margin:22mm 15mm 15mm 15mm; }   /* 左右等距，不镜像；天头留出页眉 */
   @page:left{  margin:22mm 15mm 15mm 15mm; }
   html,body{ background:#fff; }
+  /* 打印时页边距交给 @page，body 不许再自带宽度与内边距——否则
+     210mm 宽 + 30mm 内边距会让 Chrome 把整本书缩到 84%（字号 10.5 → 8.84 pt）。 */
+  html,body{ width:auto; margin:0; padding:0; }
   main{ width:180mm; min-height:0; margin:0; padding:0; box-shadow:none; }
   /* 副区见打印块末尾：`main > *` 与 `p` 权重相同，必须排在元素规则之后 */
 
@@ -307,6 +375,15 @@ code{ font-family:"DejaVu Sans Mono",monospace; font-size:.9em; }
   /* ---- 左副区（必须放在打印块最后：`main > *` 与 `p` 权重相同，靠先后定胜负）
      不要改成 main 的 padding——打印时它会被算成额外宽度，Chromium 把整页缩到 83%。 ---- */
   main > *{ margin-left:34mm; }
+  /* 宽表宽图：不论嵌在第几层，都自版心左沿起、宽 180mm——
+     漏掉一条，180+34=214mm 就会让 Chrome 把整本书缩到 84%。 */
+  table.wide, figure.wide{ margin-left:0 !important; width:180mm !important; }
+  /* pandoc 会给部分表写行内 style="width:100%"，盖住 146mm 的设定；
+     100% 是按 180mm 算的，再叠 34mm 左边距就是 214mm —— 必须钉死。 */
+  table:not(.wide){ width:146mm !important; }
+  main > .cover,
+  main > .copyright,
+  main > .tocpage{ margin-left:0; width:180mm; }
   main > figure.wide,
   main > table.wide,
   main > h1.chapo,

@@ -1,6 +1,6 @@
 # cn-textbook-layout-kit
 
-把 Markdown 写的书，排成 210×260 mm 的中文教材 PDF：左侧留 34 mm 副区放注释与题号，三线表按内容定宽，插图为 SVG（文字是矢量，缩放不糊）。
+把 Markdown 写的书，排成 210×260 mm 的中文教材 PDF：左侧留 34 mm 副区放注释与题号，三线表按内容定宽，插图为 SVG（文字是矢量，缩放不糊），书末有题解、附录与术语索引。
 
 版式参考北京大学出版社《基础有机化学》第 4 版。只参考版式，不含其内容。
 
@@ -8,12 +8,14 @@
 
 | | |
 |---|---|
-| <img src="05-样张/校_ch05_章首.png" width="420"> | <img src="05-样张/校_ch05_四条守恒.png" width="420"> |
-| 章首页：色砖 + 章号，正文自副区右侧起排 | 三级标题连号 5.1.3；正文禁编号，只加粗名目 |
-| <img src="05-样张/校_ch05_表1_主栏.png" width="420"> | <img src="05-样张/校_ch05_题解.png" width="420"> |
-| 三线表：上下 1.5 pt、表头线 0.75 pt | 书末题解：问题／已知／解（公式｜虚线｜解析）／答 |
+| <img src="05-样张/校_ch05_章首.png" width="420"> | <img src="05-样张/校_ch05_旁注.png" width="420"> |
+| 章首页：色砖 + 章号，正文自副区右侧起排 | 旁注落左副区，正文不受干扰 |
+| <img src="05-样张/校_ch05_表1.png" width="420"> | <img src="05-样张/校_ch05_图1.png" width="420"> |
+| 三线表：上下 1.5 pt、表头线 0.75 pt，列宽按内容算 | 示意图 58 mm，标注保留，图内字＝图注字 8.5 pt |
+| <img src="05-样张/校_ch05_图2.png" width="420"> | <img src="05-样张/校_ch05_题解.png" width="420"> |
+| 数据图 65 mm，图内不留解释字，只留轴与曲线 | 书末题解：问题／已知／解（公式｜虚线｜解析）／答 |
 
-完整成品见 `05-样张/样张-第5章.pdf`（21 页）。
+完整成品见 `05-样张/样张-第5章.pdf`（20 页：正文一章 + 书末题解）。
 
 ## 规格
 
@@ -25,11 +27,15 @@
 | 正文 | 10.5 pt / 17.2 pt，39 字 × 36 行 |
 | 页眉 | 基线距纸顶 15 mm，细线 17.6 mm；页码贴切口，偶页章名、奇页节名 |
 | 颜色 | 黑 + 墨蓝 `#2f6f9f`（章首色砖 `#1e4a6b`） |
-| 图 | 轴与曲线 1.5 pt，网格刻度 0.75 pt，图内字 8.5 pt（与图注同号） |
+| 图 | 宽 ≤65 mm（点名宽图 ≤180 mm）、高 ≤78 mm，图内字 8.5 pt（与图注同号）；轴与曲线 0.75 pt、网格 0.4 pt |
+| 表 | 上下框线 1.5 pt、表头线 0.75 pt；表内 9.5 pt；首列必一行 |
+| 前置页 | 封面（右对齐大字书名、红色版次标、顶部重复纹样）→ 封二空 → 版权页 → 目录（三层、每章一块双栏） |
 
 ## 依赖
 
 pandoc、Chromium/Chrome、python3（matplotlib、Pillow）、PyMuPDF、KaTeX 离线包、Noto Serif/Sans CJK SC 字体。
+
+PyMuPDF 若不在默认解释器里，构建时用 `PYMUPDF=<那个解释器>` 指过去（`finish.py`、`toc_pages.py`、`index_pages.py` 都要它）。
 
 ## 跑起来
 
@@ -37,6 +43,7 @@ pandoc、Chromium/Chrome、python3（matplotlib、Pillow）、PyMuPDF、KaTeX �
 书目录/
   src/ch01.md           正文
   src/tijie_ch01.md     题解（HTML 片段）
+  src/part0.md          卷首
   code/fig_ch01.py      插图脚本（可选）
   图/                   插图输出
   版式/                 把 04-模板/ 和 03-工具/ 放进来
@@ -44,34 +51,57 @@ pandoc、Chromium/Chrome、python3（matplotlib、Pillow）、PyMuPDF、KaTeX �
 
 ```bash
 cd 书目录/版式
+
+# 单章小样：先验管线
 python3 工具/figs.py ch01                 # 有插图时先出图
+cp 04-模板/src/template.html src/         # 首次
 PYMUPDF=python3 ./build.sh ch01 ch01.md tijie_ch01.md
+
+# 全书：封面 → 版权页 → 目录 → 卷首 → 各章 → 题解章 → 附录 A–E
+CHAPTERS="01 02" OUTNAME=试装 ./build_book.sh
+OUTNAME=全书 ./build_book.sh
 ```
 
-`build.sh` 依次做：替换 `{{ref:}}` 交叉引用、摘走章内习题只留题干、插图引用改 `.svg`、pandoc 转 HTML、`shape.py` 塑形、Chromium 打印、`finish.py` 补页眉页码书签。
+`build.sh` 依次做：替换 `{{ref:}}` 交叉引用、摘走章内习题只留题干、插图引用改 `.svg`、pandoc 转 HTML、`shape.py` 塑形、Chromium 打印、`finish.py` 补页眉页码书签。`build_book.sh` 在此基础上加上封面、版权页、三层目录、附录与索引页码回填。
 
 构建完先看字号：`python3 02-技能-book-typography-cn/scripts/measure_pdf.py out/sample.pdf`，正文应在 10.4–10.6 pt。落到 8.7 pt 说明整页被缩放了，多半是某个元素宽过版心（见「几处容易踩到的地方」第 1 条）。
+
+装一遍全书约三分半，其中 Chromium 的分页渲染吃掉三分钟。少装几遍比优化脚本划算。
 
 ## 目录
 
 ```
-01-技能-hep-textbook-rebuild/   整书重排流程（含九个踩过的坑、子代理任务模板）
+01-技能-hep-textbook-rebuild/   整书重排流程（三十条踩过的坑、子代理任务模板、全书装配与缩放诊断、前置页）
 02-技能-book-typography-cn/     中文书排版的通用知识 + 量尺与自检脚本
-03-工具/                        shape.py  finish.py  figs.py  文风检查.py
-04-模板/                        template.html（全部 CSS）+ build.sh
-05-样张/                        第 5 章正文、题解、成品 PDF、抽页 PNG
-06-参考/                        bookstyle.py（matplotlib 封装）、对照报告
+03-工具/                        排版工具链（见下表）
+04-模板/                        template.html（全部 CSS）+ build.sh（单章）+ build_book.sh（全书）
+05-样张/                        第 5 章正文、题解、成品 PDF、八张抽页
+06-参考/                        对照报告.md（与参照书逐项对照）、图表规格_v3.md（插图验收口径）
 ```
 
-`shape.py` 干的事最多：章首页色砖、节题色牌、三级标题编号、边注位置、章末题干、表格定宽、图宽判定、题解列宽。
+| 工具 | 作用 |
+|---|---|
+| `shape.py` | 章首页色砖、节题色牌、三级标题编号、边注位置、章末题干、表格定宽、图宽判定、题解列宽 |
+| `finish.py` | 页眉、页码、书签（PyMuPDF 后画） |
+| `make_front.py` `make_cover.py` | 版权页与三层目录；封面顶部重复纹样 |
+| `make_appendix.py` | 由各章定稿生成附录 D（术语索引，拼音序）与附录 E（插图目录） |
+| `toc_pages.py` `index_pages.py` | 从成品 PDF 取回真实页码，写回目录与索引 |
+| `normalize_captions.py` `fix_quotes.py` | 表题挪到表后、直引号换中文引号 |
+| `figs.py` `bookstyle.py` `figstyle_v3.py` | 出图：双色 + SVG 矢量字，画布按印刷宽度校准 |
+| `figcheck.py` | 按图表规格验收 SVG：宽高、基准字号、线宽档 |
+| `文风检查.py` `验收章.py` `规范检查.py` `term对齐.py` | AI 腔与加粗密度、章骨架体检、GB 3100/3101/3102 硬伤扫描、术语表与正文首现对齐 |
+| `对照图.py` `线宽.py` `pages.py` `check_left.py` `measure.py` | 新旧页并置、量线宽、抽页、量左沿、从书影量版式参数 |
 
 ## 几处容易踩到的地方
 
 1. **整页被缩到 83%**。用 `main` 的 `padding-left` 让出副区，Chromium 打印时把这个 padding 算成额外宽度，整页等比缩小——页边距看着正常，字号悄悄从 10.5 掉到 8.7。改成给每个子元素加 `margin-left`，满幅元素单独归零。
 2. **某一段单独钻进副区**。给这类段落写过 `margin` 简写，会覆盖掉上面的 `margin-left`。只写 `margin-bottom`。
-3. **表格列宽改不动**。pandoc 给每个 `<col>` 写了行内 `width:33%`，样式表压不住；要么 `!important`，要么删掉 colgroup 自己写毫米值。
-4. **线宽怎么设都是 0.75 pt**。Chromium 按 96 dpi 取整，1 pt 和 0.5 pt 落到同一个像素。用 1.5 / 0.75 这种成倍的数。
-5. **表格量宽虚胖一倍**。量之前要剥掉 LaTeX 源码（`\mathrm`、花括号、`^_`），否则 `^{56}\mathrm{Fe}(n,n')^{56}\mathrm{Fe}^*` 会被当成三十多个字符。
+3. **表格列宽改不动**。pandoc 用 `use-width` 给每个 `<col>` 写了行内宽度，样式表压不住；先删 `<colgroup>` 再自己写毫米值。
+4. **表格量宽虚胖一倍**。量之前要剥掉 LaTeX 源码（`\mathrm`、花括号、`^_`），否则 `^{56}\mathrm{Fe}(n,n')^{56}\mathrm{Fe}^*` 会被当成三十多个字符，表格白白开进副区。
+5. **线宽怎么设都是 0.75 pt**。Chromium 按 96 dpi 取整，1 pt 和 0.5 pt 落到同一个像素。图内线宽用 0.75／0.4 这种能落到整像素的值。
+6. **目录后多一页空白**。`.tocpage{break-after:page}` 与下一章 `h1.chapo{break-before:page}` 叠在一起，Chromium 连断两次就多一页白页。断页只留一处：目录不写 `break-after`，交给章首页的 `break-before`。
+7. **装书越装越慢**。`finish.py` 原先对每条标题都从当前页起扫一遍文本，377 页实测 199 s；改成先取一遍全文再定位，降到 2 秒级。
+8. **版本化章节稿混进全书**。`ch05_v6.md`、`ch05_v7.md` 一起被 glob 并进去，同一章出现三遍、锚点重复。合并用精确 glob `src/ch[0-9][0-9].md`，题解单独按 `tijie_ch[0-9][0-9].md` 追加。
 
 ## 表格定宽算法
 
@@ -88,7 +118,7 @@ PYMUPDF=python3 ./build.sh ch01 ch01.md tijie_ch01.md
 
 两类分开处理：数据图（曲线、谱线）图内不留字，只留坐标轴与曲线；示意图（剖面、几何、流程）标注是图的一部分，全部保留。
 
-`figs.py` 把同一份画图脚本跑两遍（保留 / 去字），再按名单各取所需。画布按印刷宽度出图，插入时不缩放，所以图内 8.5 pt 就是纸上 8.5 pt。图注一句话，细则写进正文。
+`figs.py` 把同一份画图脚本跑两遍（保留 / 去字），再按名单各取所需。画布按印刷宽度出图（默认 65 mm，宽图 180 mm），插入时不缩放，所以图内 8.5 pt 就是纸上 8.5 pt。图注一句话，细则写进正文。
 
 ## 已知问题
 

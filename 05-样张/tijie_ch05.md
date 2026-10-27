@@ -11,10 +11,10 @@
 <div class="step"><span class="eq">$N_{\mathrm{B}}=\Sigma_{\mathrm{B}}/(3840\times10^{-24})$</span><span class="lead"></span><span class="say">宏观截面除以单个核</span></div>
 <div class="step ind"><span class="eq">$N_{\mathrm{B}}=2.5\times10^{18}\ \mathrm{cm^{-3}}$</span><span class="lead"></span><span class="say">折成每立方厘米个数</span></div>
 <div class="step"><span class="eq">$m_{\mathrm{B}}=2.5\times10^{18}\times10.01/N_A=4.2\times10^{-5}$ g</span><span class="lead"></span><span class="say">每立方厘米的硼质量</span></div>
-<div class="step"><span class="eq">$4.2\times10^{-5}/1.75=2.4\times10^{-5}$</span><span class="lead"></span><span class="say">除密度，即 24 ppm</span></div>
-<div class="step ind"><span class="eq">$24/0.199=120$ ppm</span><span class="lead"></span><span class="say">再折成天然硼</span></div>
+<div class="step"><span class="eq">$4.2\times10^{-5}/1.75=2.4\times10^{-5}$</span><span class="lead"></span><span class="say">除密度，得质量分数 $24\times10^{-6}$</span></div>
+<div class="step ind"><span class="eq">$24\times10^{-6}/0.199=120\times10^{-6}$</span><span class="lead"></span><span class="say">再折成天然硼</span></div>
 </div>
-<p class="a"><span class="lab">答</span>¹⁰B 要掺到 24 ppm；折成天然硼约 120 ppm，因为天然硼里只有 19.9% 是 ¹⁰B。32.6 m 就此被压到 1 m——石墨的纯度要求为什么苛刻到百万分之几，这道题就是答案。</p>
+<p class="a"><span class="lab">答</span>$^{10}\mathrm{B}$ 的质量分数要掺到 $24\times10^{-6}$；折成天然硼约 $120\times10^{-6}$，因为天然硼里只有 19.9% 是 $^{10}\mathrm{B}$。32.6 m 就此被压到 1 m——石墨的纯度要求为什么苛刻到 $10^{-6}$ 量级，这道题就是答案。</p>
 </div>
 
 <div class="work">
@@ -28,26 +28,26 @@
 <div class="step"><span class="eq">$4.0026033+3.0160493=7.0186526$ u</span><span class="lead"></span><span class="say">产物质量相加</span></div>
 <div class="step"><span class="eq">$7.0237877-7.0186526=0.0051352$ u</span><span class="lead"></span><span class="say">前减后得质量差</span></div>
 <div class="step"><span class="eq">$Q=0.0051352\times931.5=4.783$ MeV</span><span class="lead"></span><span class="say">乘 931.5 换成能量</span></div>
-<div class="step"><span class="eq">$4.783\times4.0026/7.0187=2.73$ MeV</span><span class="lead"></span><span class="say">³H 分到的动能</span></div>
+<div class="step"><span class="eq">$4.783\times4.0026/7.0187=2.73$ MeV</span><span class="lead"></span><span class="say">$^{3}\mathrm{H}$ 分到的动能</span></div>
 <div class="step ind"><span class="eq">$4.783\times3.0160/7.0187=2.06$ MeV</span><span class="lead"></span><span class="say">α 分到的动能</span></div>
 </div>
-<p class="a"><span class="lab">答</span>反应式 $^{6}_{3}\mathrm{Li}+^{1}_{0}\mathrm{n}\to^{4}_{2}\mathrm{He}+^{3}_{1}\mathrm{H}$，即 $^{6}\mathrm{Li}(n,\alpha)^{3}\mathrm{H}$；电荷与核子数都平，$Q=+4.783$ MeV，放能。两个产物动量大小相等，轻的拿得多：³H 拿 2.73 MeV，α 拿 2.06 MeV——探测器量到的正是这两个带电粒子，所以锂-6 玻璃能把“有没有中子”变成一个干净的信号。</p>
+<p class="a"><span class="lab">答</span>反应式 $^{6}_{3}\mathrm{Li}+^{1}_{0}\mathrm{n}\to^{4}_{2}\mathrm{He}+^{3}_{1}\mathrm{H}$，即 $^{6}\mathrm{Li}(n,\alpha)^{3}\mathrm{H}$；电荷与核子数都平，$Q=+4.783$ MeV，放能。两个产物动量大小相等，轻的拿得多：$^{3}\mathrm{H}$ 拿 2.73 MeV，$^{4}\mathrm{He}$ 拿 2.06 MeV——探测器量到的正是这两个带电粒子，所以锂-6 玻璃能把“有没有中子”变成一个干净的信号。</p>
 </div>
 
 <div class="work">
 <p class="tag">题 5-3　掺硼石墨</p>
-<p class="q"><span class="lab">问题</span>一块石墨里掺了 50 ppm 的天然硼（¹⁰B 丰度 19.9%）。热中子的吸收平均自由程变成多少？比纯石墨的 32.6 m 短几倍？</p>
-<p class="given"><span class="lab">已知</span>天然硼 50 ppm，丰度 0.199，$\rho=1.75\ \mathrm{g/cm^3}$，$M_{\mathrm{B}}=10.0129\ \mathrm{g/mol}$，$\Sigma_a=3.07\times10^{-4}\ \mathrm{cm^{-1}}$，$\sigma_a(^{10}\mathrm{B})=3840$ b，$N_A=6.022\times10^{23}$</p>
+<p class="q"><span class="lab">问题</span>一块石墨里掺了质量分数 $50\times10^{-6}$ 的天然硼（$^{10}\mathrm{B}$ 丰度 19.9%）。热中子的吸收平均自由程变成多少？比纯石墨的 32.6 m 短几倍？</p>
+<p class="given"><span class="lab">已知</span>天然硼质量分数 $50\times10^{-6}$，丰度 0.199，$\rho=1.75\ \mathrm{g/cm^3}$，$M_{\mathrm{B}}=10.0129\ \mathrm{g/mol}$，$\Sigma_a=3.07\times10^{-4}\ \mathrm{cm^{-1}}$，$\sigma_a(^{10}\mathrm{B})=3840$ b，$N_A=6.022\times10^{23}$</p>
 <div class="steps">
-<div class="step"><span class="eq">$50\times10^{-6}\times0.199=9.95\times10^{-6}$</span><span class="lead"></span><span class="say">¹⁰B 的质量分数</span></div>
+<div class="step"><span class="eq">$50\times10^{-6}\times0.199=9.95\times10^{-6}$</span><span class="lead"></span><span class="say">$^{10}\mathrm{B}$ 的质量分数</span></div>
 <div class="step"><span class="eq">$N_{10}=\dfrac{9.95\times10^{-6}\times1.75}{10.0129}N_A$</span><span class="lead"></span><span class="say">质量分数换成数密度</span></div>
-<div class="step ind"><span class="eq">$N_{10}=1.05\times10^{18}\ \mathrm{cm^{-3}}$</span><span class="lead"></span><span class="say">每立方厘米的 ¹⁰B</span></div>
+<div class="step ind"><span class="eq">$N_{10}=1.05\times10^{18}\ \mathrm{cm^{-3}}$</span><span class="lead"></span><span class="say">每立方厘米的 $^{10}\mathrm{B}$</span></div>
 <div class="step"><span class="eq">$1.05\times10^{18}\times3840\times10^{-24}=4.02\times10^{-3}$</span><span class="lead"></span><span class="say">硼贡献的宏观截面</span></div>
 <div class="step"><span class="eq">$3.07\times10^{-4}+4.02\times10^{-3}=4.33\times10^{-3}$</span><span class="lead"></span><span class="say">两项相加得总截面</span></div>
 <div class="step ind"><span class="eq">$\lambda=1/4.33\times10^{-3}=231$ cm</span><span class="lead"></span><span class="say">倒过来就是 2.31 m</span></div>
 <div class="step"><span class="eq">$32.6/2.31=14$</span><span class="lead"></span><span class="say">与纯石墨相比</span></div>
 </div>
-<p class="a"><span class="lab">答</span>掺 50 ppm 天然硼后，吸收平均自由程只有 2.31 m，比纯石墨的 32.6 m 短了 14 倍。其中 ¹⁰B 的质量分数才 10 ppm，石墨“散射多、吸收少”的优势就被砍掉一个数量级——核级石墨要求硼当量在 1 ppm 以下，原因就是这个杠杆：3840 b 对 0.0035 b，差 $10^6$ 倍。</p>
+<p class="a"><span class="lab">答</span>掺质量分数 $50\times10^{-6}$ 的天然硼后，吸收平均自由程只有 2.31 m，比纯石墨的 32.6 m 短了 14 倍。其中 $^{10}\mathrm{B}$ 的质量分数才 $10\times10^{-6}$，石墨“散射多、吸收少”的优势就被砍掉一个数量级——核级石墨要求硼当量在 $1\times10^{-6}$ 以下，原因就是这个杠杆：3840 b 对 0.0035 b，差 $10^6$ 倍。</p>
 </div>
 
 <div class="work">

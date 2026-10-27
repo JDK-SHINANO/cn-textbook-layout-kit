@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""fig_ch05_v3.py —— 第 5 章插图（v3，五张单幅）
+
+按 `规范/图清单_ch05.md` 与 `规范/图表规格_v3.md` 出图，画布即印刷尺寸，插入不缩放：
+
+  图 5-1  薄靶的遮挡与透射（示意）            58 × 46 mm
+  图 5-2  中子波长与核直径的交叉              65 × 58 mm
+  图 5-3  石墨中热中子的两条自由程            58 × 44 mm
+  图 5-4  铀-238 俘获截面（0.01 eV～1 MeV）   65 × 62 mm
+  图 5-5  6.673 eV 共振峰：静止靶与 300 K     65 × 58 mm
+
+运行：cd code && /usr/bin/python3 fig_ch05_v3.py  → ../图v3/ch05/ch05_fig1..5.{svg,png}
+"""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import numpy as np
+import matplotlib.ticker as mt
+from matplotlib.patches import Rectangle, Circle, FancyArrowPatch
+
+import figstyle_v3 as fs
+
+OUT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "..", "图v3", "ch05"))
+
+HC = 1.23984193e-6          # eV·m
+MN = 939.56542052e6         # eV
+R_U = 1.2 * 238.0 ** (1.0 / 3.0)      # fm，7.44
+TWO_R = 2.0 * R_U * 1e-15             # m，1.49e-14
+E_CROSS = 3.7e6                        # eV，λ_dB = 2R 处（复算 3.68 MeV）
+
+# 表 5-3：六个低能 s 波共振（E_R / eV，峰高 σ0 / b）
+RES = [(6.673, 22200), (20.872, 26600), (36.682, 17200),
+       (66.031, 9900), (80.747, 2200), (102.569, 4800)]
+
+SIG_T = 2.683      # b，0.0253 eV
+E_T = 0.0253       # eV
+PEAK_0K, GAMMA_0K = 22200.0, 0.0245     # b, eV（24.5 meV）
+PEAK_300K, GAMMA_300K = 7000.0, 0.054   # b, eV（54 meV，多普勒宽度）
+
+
+def lam_db(E):
+    """德布罗意波长（m）。"""
+    return HC / np.sqrt(2.0 * MN * E)
+
+
+def bg_sigma(E):
+    """铀-238 俘获截面的底：1 eV 以下 1/v，以上按未分辨共振的平均水平缓降。"""
+    E = np.asarray(E, dtype=float)
+    lo = SIG_T * np.sqrt(E_T / E)
+    hi = SIG_T * np.sqrt(E_T / 1.0) * np.power(E, -0.105)   # 1 MeV 处 ≈0.1 b
+    return np.where(E <= 1.0, lo, hi)
+
+
+def log_ticks(ax, axis, vals):
+    a = ax.xaxis if axis == "x" else ax.yaxis
+    a.set_major_locator(mt.FixedLocator(vals))
+    a.set_minor_locator(mt.NullLocator())
+    a.set_major_formatter(mt.LogFormatterMathtext())
+
+
+# =====================================================================
+# 图 5-1  薄靶的遮挡与透射（示意）
+# =====================================================================
+def fig1():
+    fig, ax = fs.new(58, 46)
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 8.4)
+    ax.axis("off")
+    ax.grid(False)
+
+    # 靶片
+    ax.add_patch(Rectangle((3.75, 0.8), 1.80, 6.0, facecolor=fs.FILL,
+                           edgecolor=fs.MAIN, lw=fs.LW_LINE, zorder=1))
+    # 核 + 有效面积 σ（虚线方框，示意，不按比例）
+    for y in (1.9, 3.1, 4.3, 5.5):
+        ax.add_patch(Rectangle((4.10, y - 0.5), 1.10, 1.0, fill=False,
+                               edgecolor=fs.MAIN, lw=fs.LW_LINE,
+                               ls=(0, (2.2, 1.6)), zorder=3))
+        ax.add_patch(Circle((4.65, y), 0.10, facecolor=fs.INK,
+                            edgecolor="white", lw=0.4, zorder=4))
+
+    # 入射束（中间一条在核上被截住）与透射束
+    for y in (1.1, 1.9, 3.1, 4.3, 5.5):
+        tip = 4.52 if y == 3.1 else 3.70
+        ax.add_patch(FancyArrowPatch((0.25, y), (tip, y), arrowstyle="-|>",
+                                     mutation_scale=6, lw=fs.LW_LINE,
+                                     color=fs.MAIN, shrinkA=0, shrinkB=0, zorder=5))
+    for y in (1.1, 1.9, 4.3, 5.5):
+        ax.add_patch(FancyArrowPatch((5.58, y), (9.55, y), arrowstyle="-|>",
+                                     mutation_scale=6, lw=fs.LW_LINE,
+                                     color=fs.MAIN, shrinkA=0, shrinkB=0, zorder=5))
+
+    # 三条标注
+    ax.add_patch(FancyArrowPatch((3.75, 7.12), (5.55, 7.12), arrowstyle="<|-|>",
+                                 mutation_scale=5, lw=fs.LW_GRID,
+                                 color=fs.INK, shrinkA=0, shrinkB=0))
+    ax.text(4.65, 7.26, r"$\Delta x$", ha="center", va="bottom", fontsize=fs.FS)
+    ax.annotate(r"$\sigma$", xy=(5.20, 6.00), xytext=(6.55, 6.62),
+                ha="center", va="center", fontsize=fs.FS, color=fs.MAIN,
+                arrowprops=dict(arrowstyle="-", lw=fs.LW_GRID, color=fs.MAIN,
+                                shrinkA=1, shrinkB=1))
+    ax.text(6.95, 7.26, r"$\Phi_0\to\Phi$", ha="left", va="bottom", fontsize=fs.FS)
+    return fs.save(fig, "ch05_fig1", outdir=OUT)
+
+
+# =====================================================================
+# 图 5-2  中子波长与核直径的交叉
+# =====================================================================
+def fig2():
+    fig, ax = fs.new(65, 58)
+    E = np.logspace(-3, 7, 600)
+
+    ax.loglog(E, lam_db(E), color=fs.MAIN, lw=fs.LW_LINE, zorder=3)
+    ax.axhline(TWO_R, color=fs.GRAY, lw=fs.LW_LINE, ls=(0, (4, 2)), zorder=2)
+    ax.plot([E_CROSS, E_CROSS], [1e-15, lam_db(E_CROSS)], color=fs.GRAY,
+            lw=fs.LW_LINE, ls=(0, (2, 1.6)), zorder=2)
+
+    ax.set_xlim(1e-3, 1e7)
+    ax.set_ylim(1e-15, 1e-9)
+    log_ticks(ax, "x", [1e-2, 1e0, 1e2, 1e4, 1e6])
+    log_ticks(ax, "y", [1e-15, 1e-13, 1e-11, 1e-9])
+
+    ax.set_xlabel(r"$E$ / eV")
+    ax.set_ylabel(r"$\lambda$ / m")
+
+    ax.text(3.0e1, 8.0e-11, r"$\lambda_{\mathrm{dB}}$", ha="left", va="bottom",
+            fontsize=fs.FS, color=fs.MAIN)
+    ax.text(1.4e-2, 2.35e-14, r"$2R$", ha="left", va="bottom",
+            fontsize=fs.FS, color=fs.GRAY)
+    ax.plot([E_CROSS], [TWO_R], "o", color=fs.INK, ms=2.4, zorder=5,
+            markeredgecolor="white", markeredgewidth=0.3)
+    ax.text(2.4e6, 2.7e-15, "3.7 MeV", ha="right", va="bottom", fontsize=fs.FS)
+    return fs.save(fig, "ch05_fig2", outdir=OUT)
+
+
+# =====================================================================
+# 图 5-3  石墨中热中子的两条自由程
+# =====================================================================
+def fig3():
+    fig, ax = fs.new(58, 44)
+    ax.set_xscale("log")
+    ax.set_xlim(0.7, 1e4)
+    ax.set_ylim(0.80, 2.20)
+    ax.set_yticks([])
+    ax.grid(False)
+    for side in ("left", "top", "right"):
+        ax.spines[side].set_visible(False)
+
+    ax.plot([0.75, 2.43], [1.0, 1.0], color=fs.MAIN, lw=fs.LW_LINE,
+            solid_capstyle="butt")
+    ax.plot([2.43, 2.43], [0.93, 1.07], color=fs.MAIN, lw=fs.LW_LINE,
+            solid_capstyle="butt")
+    ax.plot([0.75, 3260.0], [2.0, 2.0], color=fs.GRAY, lw=fs.LW_LINE,
+            solid_capstyle="butt")
+    ax.plot([3260.0, 3260.0], [1.93, 2.07], color=fs.GRAY, lw=fs.LW_LINE,
+            solid_capstyle="butt")
+    ax.annotate("", xy=(1.5, 2.0), xytext=(1.5, 1.0),
+                arrowprops=dict(arrowstyle="<->", lw=fs.LW_LINE, color=fs.INK,
+                                shrinkA=0, shrinkB=0))
+    # 尺寸线两端是 2.43 cm 与 3260 cm，标「比值」才不会让人把它读成长度差
+    ax.text(1.72, 1.5, r"比值 $1.3\times10^{3}$", ha="left", va="center",
+            fontsize=fs.FS)
+
+    ax.text(2.85, 1.02, r"$\lambda_s$", ha="left", va="bottom",
+            fontsize=fs.FS, color=fs.MAIN)
+    ax.text(1.25e3, 2.02, r"$\lambda_a$", ha="left", va="bottom",
+            fontsize=fs.FS, color=fs.GRAY)
+    ax.set_xlabel("距离 / cm")
+    log_ticks(ax, "x", [1e0, 1e1, 1e2, 1e3, 1e4])
+    return fs.save(fig, "ch05_fig3", outdir=OUT)
+
+
+# =====================================================================
+# 图 5-4  铀-238 俘获截面（0.01 eV～1 MeV）
+# =====================================================================
+def fig4():
+    fig, ax = fs.new(65, 62)
+    E = np.logspace(-2, 6, 900)
+    ax.loglog(E, bg_sigma(E), color=fs.MAIN, lw=fs.LW_LINE, zorder=3)
+
+    for E0, s0 in RES:
+        base = float(bg_sigma(E0))
+        ax.plot([E0, E0], [base, s0], color=fs.MAIN, lw=fs.LW_LINE, zorder=3)
+
+    ax.plot([E_T], [SIG_T], "o", color=fs.INK, ms=2.8, zorder=5,
+            markeredgecolor="white", markeredgewidth=0.3)
+
+    ax.set_xlim(1e-2, 1e6)
+    ax.set_ylim(3e-2, 1.2e5)
+    log_ticks(ax, "x", [1e-2, 1e0, 1e2, 1e4, 1e6])
+    log_ticks(ax, "y", [1e-1, 1e1, 1e3, 1e5])
+
+    ax.set_xlabel(r"$E$ / eV")
+    ax.set_ylabel(r"$\sigma_\gamma$ / b")
+    ax.annotate(r"$2.683$ b", xy=(0.0268, 3.15), xytext=(0.052, 4.30),
+                ha="left", va="bottom", fontsize=fs.FS,
+                arrowprops=dict(arrowstyle="-", lw=fs.LW_GRID, color=fs.INK,
+                                shrinkA=1, shrinkB=1))
+    return fs.save(fig, "ch05_fig4", outdir=OUT)
+
+
+# =====================================================================
+# 图 5-5  6.673 eV 共振峰：静止靶与 300 K
+# =====================================================================
+def fig5():
+    fig, ax = fs.new(65, 58)
+    E0 = 6.673
+    E = np.linspace(6.60, 6.75, 1500)
+
+    def lor(peak, width):
+        return peak / (1.0 + (2.0 * (E - E0) / width) ** 2)
+
+    s0 = lor(PEAK_0K, GAMMA_0K)
+    s300 = lor(PEAK_300K, GAMMA_300K)
+
+    ax.fill_between(E, 0.0, s300, color=fs.LIGHT, alpha=0.42, lw=0, zorder=1)
+    ax.fill_between(E, 0.0, s0, color=fs.LIGHT, alpha=1.0, lw=0, zorder=2)
+    h300, = ax.plot(E, s300, color=fs.GRAY, lw=fs.LW_LINE, ls=(0, (4, 2)),
+                    label="300 K", zorder=3)
+    h0, = ax.plot(E, s0, color=fs.MAIN, lw=fs.LW_LINE, label="0 K", zorder=4)
+
+    ax.set_xlim(6.60, 6.75)
+    ax.set_ylim(0, 24000)
+    ax.set_xticks([6.60, 6.65, 6.70, 6.75])
+    ax.set_xticklabels(["6.60", "6.65", "6.70", "6.75"])
+    ax.xaxis.set_minor_locator(mt.NullLocator())
+    ax.set_yticks([0, 8000, 16000, 24000])
+    ax.yaxis.set_minor_locator(mt.NullLocator())
+
+    ax.set_xlabel(r"$E$ / eV")
+    ax.set_ylabel(r"$\sigma_\gamma$ / b")
+    leg = ax.legend(handles=[h0, h300], loc="upper right", handlelength=1.6,
+                    handletextpad=0.4, borderpad=0.1, labelspacing=0.25)
+    for t in leg.get_texts():
+        t.set_fontsize(fs.FS)
+    return fs.save(fig, "ch05_fig5", outdir=OUT)
+
+
+if __name__ == "__main__":
+    print(f"λ_dB(0.0253 eV) = {float(lam_db(E_T)) * 1e10:.2f} Å；"
+          f"2R = {TWO_R * 1e15:.2f} fm；交点 {E_CROSS / 1e6:.2f} MeV "
+          f"(复算 λ(3.7 MeV)={float(lam_db(E_CROSS)) * 1e15:.2f} fm)")
+    print(f"σ_bg(1 MeV) = {float(bg_sigma(1e6)):.3f} b；"
+          f"σ_bg(0.01 eV) = {float(bg_sigma(0.01)):.2f} b")
+    bad = 0
+    for f in (fig1, fig2, fig3, fig4, fig5):
+        print(f"\n[{f.__name__}]")
+        bad += f()
+    print(f"\n合计文字互压/越界 {bad} 处")
+    sys.exit(0 if bad == 0 else 1)

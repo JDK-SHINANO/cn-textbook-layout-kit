@@ -72,6 +72,18 @@ def shape_fig(m):
     return f'<figcaption><span class="figno">{g.group(1)}</span>\u3000{g.group(2)}</figcaption>'
 
 
+TABNO = re.compile(r"^(表\s*\d+-\d+)[\u3000\s]*(.*)$", re.S)
+
+
+def shape_tab(m):
+    """表题与图注同款：居中、同字号，只把位置放在表上方。表号着主色。"""
+    inner = m.group(1).strip()
+    g = TABNO.match(inner)
+    if not g:
+        return m.group(0)
+    return f'<caption><span class="tabno">{g.group(1)}</span>\u3000{g.group(2)}</caption>'
+
+
 LEAD_TITLE = "本章要解决的问题"
 NOTE_HEAD = re.compile(r"^<p><strong>(旁注[^<]*)</strong>")
 
@@ -92,7 +104,7 @@ def _blocks(src):
 
 
 def shape_quotes(src):
-    """把两类引文就地改写：章首问题清单 → blockquote.lead；旁注 → aside.note。
+    r"""把两类引文就地改写：章首问题清单 → blockquote.lead；旁注 → aside.note。
 
     早年用一条正则 `<blockquote>\s*<p><strong>…(.*?)</p>\s*</blockquote>`，
     一旦引文里还套着 <ol>（问题清单换了写法就会这样），惰性匹配会一路吞到
@@ -250,7 +262,7 @@ def fit_say_columns(src: str):
     return src, n
 
 
-H3 = re.compile(r'<h3 id="[^"]*">(.*?)</h3>', re.S)
+H3 = re.compile(r'<h3[^>]*>(.*?)</h3>', re.S)
 H2NO = re.compile(r'<span class="secno">(\d+\.\d+)</span>')
 
 
@@ -259,7 +271,7 @@ def number_h3(src: str):
     无编号的节（本章要点、题解小节）下不编号。"""
     sec, n, out, total = None, 0, [], 0
     pos = 0
-    for m in re.finditer(r'<h2[^>]*>.*?</h2>|<h3 id="[^"]*">.*?</h3>', src, re.S):
+    for m in re.finditer(r'<h2[^>]*>.*?</h2>|<h3[^>]*>.*?</h3>', src, re.S):
         out.append(src[pos:m.start()])
         blk = m.group(0)
         if blk.startswith("<h2"):
@@ -459,6 +471,21 @@ def mark_wide(src: str):
     n_tab2 = 0
     src, n_tab2 = fit_tables(src)
 
+    # 定宽后若列宽合计已到 180mm，却没有 class="wide"，表会变成
+    # 「左沿 34mm + 宽 180mm = 214mm」，Chrome 会把整本书缩到 84%。
+    def ensure_wide(m):
+        nonlocal n_tab
+        blk = m.group(0)
+        if 'class="wide"' in blk:
+            return blk
+        ws = [float(x) for x in re.findall(r"width:\s*([\d.]+)mm", blk)]
+        if ws and sum(ws) >= 176:
+            n_tab += 1
+            return blk.replace("<table", '<table class="wide"', 1)
+        return blk
+
+    src = re.sub(r"<table.*?</table>", ensure_wide, src, flags=re.S)
+
     def cell(m):
         nonlocal n_num
         txt = re.sub(r"<[^>]+>", "", m.group(1)).strip()
@@ -473,7 +500,7 @@ def mark_wide(src: str):
 
 def main(path):
     src = open(path, encoding="utf-8").read()
-    n1 = n2 = n3 = 0
+    n1 = n2 = n3 = ntab = 0
 
     def h1(m):
         nonlocal n1
@@ -493,10 +520,17 @@ def main(path):
         n3 += out != m.group(0)
         return out
 
+    def tc(m):
+        nonlocal ntab
+        out = shape_tab(m)
+        ntab += out != m.group(0)
+        return out
+
     # 只处理 <h1 id=...>纯文本</h1>（不含标签的）
     src = re.sub(r'<h1 id="([^"]+)">([^<]+)</h1>', h1, src)
     src = re.sub(r'<h2 id="([^"]+)">([^<]+)</h2>', h2, src)
     src = re.sub(r"<figcaption[^>]*>(.*?)</figcaption>", fc, src, flags=re.S)
+    src = re.sub(r"<caption>(.*?)</caption>", tc, src, flags=re.S)
     src, nlead, nnote = shape_quotes(src)
     src, npts = mark_points(src)
     src, nh3 = number_h3(src)
@@ -509,7 +543,7 @@ def main(path):
     njoiner = 0
 
     open(path, "w", encoding="utf-8").write(src)
-    print(f"shape: 章首页 {n1}，节题 {n2}，图题 {n3}，问题清单 {nlead}，"
+    print(f"shape: 章首页 {n1}，节题 {n2}，图题 {n3}，表题 {ntab}，问题清单 {nlead}，"
           f"边注 {nnote}，要点式 {npts}，三级号 {nh3}，解列 {nsay}，破栏图 {nwide}，定宽表 {n_tab2}，数值格 {nnum}，禁则 {njoiner}")
 
 
