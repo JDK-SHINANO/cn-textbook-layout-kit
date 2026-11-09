@@ -1,6 +1,6 @@
 # 排版改造方案
 
-**对象**：`核物理课本/src/template.html`、`tools/pdf_finish.py`、`code/bookstyle.py`、`src/ch*.md`（结构级，少量）
+**对象**：`归档/已完成项目/核物理课本/src/template.html`、`tools/pdf_finish.py`、`code/bookstyle.py`、`src/ch*.md`（结构级，少量）
 **不改**：`build.sh` 的流程、`src/book.md`（自动生成）
 **目标数值**：正文 10.5 pt / 行距 17 pt / 40 字/行 / 39 行/页 / 版心 148×234 mm / 天头 28 / 地脚 35 / 订口 32 / 切口 30
 

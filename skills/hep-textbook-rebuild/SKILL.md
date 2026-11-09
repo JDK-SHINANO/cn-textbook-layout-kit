@@ -19,7 +19,7 @@ metadata:
 
 **样子取自 `BOOK/src/ch05_v8.md`**（已排成 21 页 PDF。v8 是 v7 经三轮校订的定稿：补内容，给收束段加上「本章小结」标题，删掉多数「它要解决什么问题」小标题）。全书照抄，不另造体例：章首 `> **本章要解决的问题**` 加 1./2./3. 疑问清单；节标题 `## N.M`，三级标题 `###`；算例以 `**算例一：…**` 起头，散在正文里；旁注落副区；图下一行图题，加 `**这张图要读出什么**`；章末顺序是「动手算一算（只留指引）→ 本章要点 → 本章术语表 → **本章小结**（承上启下的收束段，必须给它标题，不许裸挂在术语表后面）→（本章数值出处）→ 口径说明」。「例题编号」「公式编号」「每章参考文献小节」**不采用**，那会改掉样子。
 
-**动手之前先读 `book-typography-cn`**，尤其是里面的 `references/textbook-layout-cn.md`。本册只记这本书怎么排、踩过哪些雷，通用版式理论不在这里重复。
+**动手之前先读 `book-typography-cn`**，尤其是它的 references 目录下 `textbook-layout-cn.md`。本册只记这本书怎么排、踩过哪些雷，通用版式理论不在这里重复。
 
 ## When to Use
 
@@ -44,7 +44,9 @@ metadata:
 ## 二、工程结构
 
 ```
-BOOK = <书目录>/            （本机路径见 README 的目录约定）
+BOOK = /home/shinano/.hermes/Claw_Shinano/归档/已完成项目/核物理课本/     （本机实况；项目已归档，复工从归档位置继续）
+  教材/从零开始的核物理与核能.pdf  旧版 A4 稿，340 页（只作历史对照，勿再改）
+  从零开始的核物理与核能_v3.pdf     v3 成品，369 页、210×260
   src/chNN.md            原稿（不动）
   src/chNN_vN.md         改写稿（每轮新版本号）
   src/tijie_chNN.md      该章题解
@@ -114,6 +116,7 @@ SAMPLE = BOOK/版式对照_有机化学风/    ← 装配车间
    - 内容读校按卷切三路（每路 5–6 章），只读 `src/*_v8.md`，只写 `规范/审读_v3_*.md`，**不许改正文**；每条给「文件:行号｜原文（截）｜问题｜改法」，按 A（会让读者学错或卡住）／B（降低效率）／C（不好看）分级，末附「最该先改的 10 条」。
    - 插图审阅两路（ch00–08 / ch09–17），**可以改 `code/fig_chNN_v3.py` 并重跑**，但改完必须 `figcheck` 全过、`fs.audit` 为 0，且不许改正文（图文冲突只写进报告，由正文修订路处理）。
    - 装订审阅一路：量 PDF 的字号直方图、行距、版心、表题与图题位置、空白页、书眉归属。
+   - **每路简报都要点名 skill 并开权限**：读校路点 `humanize`（文风判据）与 `book-typography-cn`（编号、加粗密度、术语首现）；插图路点 `book-typography-cn` 的图规与线宽、其 references 目录下 `textbook-layout-cn.md` 的「图内极简」；装订路点 `book-typography-cn` 与其 references 目录下 `diagnosis-checklist.md`。子代理读不到主对话里的 skill，只给文件路径只读到正文，`references/`、`scripts/` 不会跟来（见 `agent-brief-design`「子代理的继承边界」）。审阅要查外文原始数据、厂商图纸与装置照片，任务书里须显式开放联网与抓取（`web_search`／`web_extract`／`browser_*`）；不给，插图路只凭常识判「像不像」，剖面画错也看不出来。
    - 收报后按卷切三路修订代理，每条改动写「旧值→新值→依据」，A 级全改、B 级尽量、C 级择要。别给修订代理「自由改写」的口子，新引入的改动会把这一轮审阅的收益抵消掉。
 
 每章收工前仍要：
@@ -147,7 +150,7 @@ SAMPLE = BOOK/版式对照_有机化学风/    ← 装配车间
 
 已实测：表 5-1 27/21/37/61=146（主栏）；术语表 23/45/112=180（只此一张开副区）。
 
-### 细文三条（用户逐条定过，机理与 CSS 见 `book-typography-cn` 的 `references/textbook-layout-cn.md`）
+### 细文三条（用户逐条定过，机理与 CSS 见 `book-typography-cn` 的 references 目录下 `textbook-layout-cn.md`）
 
 - 表内文字**一律左对齐、上下居中**（数值格也不右齐，只保 `tabular-nums`）。
 - 「要点／小结」列表**不打圆点**，按段落排（首行缩进两字）。
@@ -291,31 +294,37 @@ SAMPLE = BOOK/版式对照_有机化学风/    ← 装配车间
 
 17 章 + 卷首 + 书末《题解》+ 附录 A–E（常数、核素表、公式速查、术语索引、插图目录）。卷四 18–21 章尚未写。
 
+**交付节奏（用户定调）**：质量优先于速度，不赶；篇幅不嫌多——该补的一节、一张图、一道题解照补，不因页数上涨而删并或改小字号。宁可多跑一轮审阅、晚几天交，也不要把未复核的内容递上去；反过来，无谓的重复装书与形式性复核要砍（见雷区 Z）。
+
 工作量参考：原 68 张图（27 张含子图）→ 拆成 80 张单幅 65 mm 图；76 道题改三列式；17 章正文重写（去 AI 腔与意象、补断层、出图清单）；附录 A–E 五份。
 实测成品：17 章＋题解＋附录、80 幅图、86 张表、350 余条术语索引 → **369 页**（210×260，正文 10.48 pt，含封面、版权页与目录）。
 
 ## 十一、把套件打包转交（含开源）
 
+**已发布仓库**：`JDK-SHINANO/cn-textbook-layout-kit`（中文教材排版套件：210×260 开本、左副区、三线表按内容定宽、SVG 矢量插图、文风检查器；内容＝技能＋工具＋模板＋样张）。打包脚本＝`BOOK/版式对照_有机化学风/工具/打包.sh`，当前包版本「信浓教材版式套件」v2.1。
+
+打包脚本用法：`./打包.sh` 只暂存（落 `~/.hermes/cache/scratch/kit/信浓教材版式套件`，开头 `rm -rf` 旧暂存）；`./打包.sh zip` 暂存后再压 zip 到桌面。它直接从 `~/.hermes/skills/productivity/` 取两个技能（hep-textbook-rebuild、book-typography-cn），工具优先从 `版式对照_有机化学风/工具/` 取、缺件回退 `BOOK/工具/`，仍缺则报错退出——**新增工具必须同步改脚本里的文件名单，否则不进包**。README 由脚本从 `工具/README.md` 复制，改对外说明要先改源文件。书稿的对照报告与内部审阅记录不随包发。
+
 分享给别人时，别把 `版式对照_有机化学风/` 原样打包，要给一份**自解释的包**：
 
 ```
-01-技能-hep-textbook-rebuild/  02-技能-book-typography-cn/
-03-工具/（装配链 + 验收链 + 出图，含 bookstyle.py、figstyle_v3.py）
-04-模板/（template.html + build.sh 单章 + build_book.sh 全书）
-05-样张/（定稿正文、题解、成品 PDF、≤8 张抽页）
+skills/hep-textbook-rebuild/  skills/book-typography-cn/
+tools/（装配链 + 验收链 + 出图，含 bookstyle.py、figstyle_v3.py）
+templates/（template.html + build.sh 单章 + build_book.sh 全书）
+samples/（定稿正文、题解、成品 PDF、≤8 张抽页）
 06-参考/（对照报告、图表规格_v3）
-README.md（对外）  套件说明.md（详）  LICENSE（MIT 正文）
+README.md（对外）  docs/套件说明.md（详）  LICENSE（MIT 正文）
 ```
 
 八条硬规矩：
 
-1. **说明文件由打包脚本复制进暂存目录，且源文件只留一份**：别先手写再跑脚本，脚本开头的 `rm -rf "$STAGE"` 会把它一并删掉。源放在工具目录（`工具/README.md` 对外、`工具/套件README.md` 详说明、`工具/LICENSE`），脚本各拷一份到 `README.md`、`套件说明.md`、`LICENSE`，改完再把前两者拷回仓库根，否则仓库与 zip 两套说明各说各话。**发 Release 前必须把 zip 解压与仓库 `git ls-tree` 逐文件比 blob（`git hash-object`）**：漏 LICENSE、README 版本不同步都是这么查出来的。
+1. **说明文件由打包脚本复制进暂存目录，且源文件只留一份**：别先手写再跑脚本，脚本开头的 `rm -rf "$STAGE"` 会把它一并删掉。源放在工具目录（`工具/README.md` 对外、`工具/套件README.md` 详说明、`工具/LICENSE`），脚本各拷一份到 `README.md`、`docs/套件说明.md`、`LICENSE`，改完再把前两者拷回仓库根，否则仓库与 zip 两套说明各说各话。**发 Release 前必须把 zip 解压与仓库 `git ls-tree` 逐文件比 blob（`git hash-object`）**：漏 LICENSE、README 版本不同步都是这么查出来的。
 2. **绝对路径一律参数化**：`build.sh` 里写死的 PyMuPDF 解释器 sed 成 `${PYMUPDF:-python3}`；`BOOK/`、`SAMPLE/` 这些本机路径写进 README 的目录约定，不要带出包外。
 3. **封包前对包内每个 `.py` 跑语法检查，并按 warning 报错跑**：`python3 -W error::SyntaxWarning -c "import ast;ast.parse(open(f,encoding='utf-8').read())"`。裸 `ast.parse` 会放过非法转义序列（文档串里写 `\s` 只报 SyntaxWarning，运行时才炸），实测 `shape.py` 就是这么带着警告出包的。解压后再跑一次，确认包内无误。
 4. **样张只留十张以内的代表页**（章首、题干满宽、术语表、题解、宽图、窄图、页眉、要点……），不要历次迭代的 `校_*.png` 全塞进去；包会从 5 MB 涨到 20 MB，发不出去。
 5. **样张的图要与正文、与《图表规格》同代**：正文 v8 引用 5 张图，若样张的图目录还是 v2 那套（只 4 张、146/180 mm），出图时少一张，图注整体错位一格（图 5-2 的注落到图 5-1 上），且与 65 mm 规格互相打脸。→ 样张照 `图v3/chNN/*.svg` 落盘（放进 `fig5_chNN/` 供 `build.sh` 直接用，免得 figs.py 重画），封包前跑 `figcheck.py <样张图目录>`，并数「图注数 = 正文唯一图引用数」。
-6. **交付说明分两层**：顶层 `README.md` 面向陌生人（参数一张表、依赖、怎么 build、已知缺陷）；原包里的详说明改名 `套件说明.md` 一并留着，两者不重复。**说明里的计数必须与产物现数对一遍**：页数、工具件数、抓坑条数、小节标题里的数量——重生样张后页数会变，标题写「三条规矩」而底下列了五条也是常事，这类错只有逐句读文案才看得出。
-7. **README 用开发者口吻，不用 AI 口吻**：开头一句说清工具干什么，接规格表、依赖、一段可粘贴的命令、一节「几处容易踩到的地方」（症状→病根→怎么改）。别用「一图看懂」「三件最有用的东西」「已知缺陷（不是没做）」这类标题。插 3–4 张示例图（`<img src="05-样张/…png" width="420">`，两两并排，下一行写图说）。最后加一节「看不懂文档的话」：整包下载丢给 AI，附一句「读 SKILL.md 与套件说明，照流程排我的 src/」。**文案写成后过一遍 `humanize` skill**（`skill_view(name='humanize')`，中英两本目录的合订本）。交付文案去 AI 腔是用户明确要求，不是可选项。中文里最常见的五处痕迹是破折号连环、『不是 A 而是 B』、加粗当小标题的内联清单、「首先／其次／综上」、小节末尾一句格言；技术文档里的加粗与破折号只在承载表格、步骤时保留。
+6. **交付说明分两层**：顶层 `README.md` 面向陌生人（参数一张表、依赖、怎么 build、已知缺陷）；原包里的详说明改名 `docs/套件说明.md` 一并留着，两者不重复。**说明里的计数必须与产物现数对一遍**：页数、工具件数、抓坑条数、小节标题里的数量——重生样张后页数会变，标题写「三条规矩」而底下列了五条也是常事，这类错只有逐句读文案才看得出。
+7. **README 用开发者口吻，不用 AI 口吻**：开头一句说清工具干什么，接规格表、依赖、一段可粘贴的命令、一节「几处容易踩到的地方」（症状→病根→怎么改）。别用「一图看懂」「三件最有用的东西」「已知缺陷（不是没做）」这类标题。插 3–4 张示例图（`<img src="samples/…png" width="420">`，两两并排，下一行写图说）。最后加一节「看不懂文档的话」：整包下载丢给 AI，附一句「读 SKILL.md 与套件说明，照流程排我的 src/」。**文案写成后过一遍 `humanize` skill**（`skill_view(name='humanize')`，中英两本目录的合订本）。交付文案去 AI 腔是用户明确要求，不是可选项。中文里最常见的五处痕迹是破折号连环、『不是 A 而是 B』、加粗当小标题的内联清单、「首先／其次／综上」、小节末尾一句格言；技术文档里的加粗与破折号只在承载表格、步骤时保留。
 8. **README 里的图要验两道**：`raw.githubusercontent.com/…/main/<路径>` 逐张 `curl -o /dev/null -w %{http_code}`，应回 200；再 `curl` 仓库主页，确认渲染后的 HTML 里有绝对化的 `src="/<账>/<repo>/raw/main/…"`。相对路径写错时页面只显示破图标。**校园网或代理下 raw 域名可能整个不通（curl 回 000、/raw/ 回 302 且不跟到 objects.githubusercontent.com）**，这时改走 `gh api repos/<账>/<repo>/contents/<urlencode 路径> --jq .sha`，与本地 `git hash-object <文件>` 的 blob sha 比对，一致即证明远端字节无误，不要据此判定图挂了。
 
 开源到 GitHub：
@@ -324,5 +333,14 @@ README.md（对外）  套件说明.md（详）  LICENSE（MIT 正文）
 - 许可证统一 **MIT**（用户已定，不要再问 0BSD/Unlicense）：zip 根上必须有 `LICENSE` 正文（MIT 包不带许可正文等于没许），文案一律写「MIT，保留版权声明」，**不许再写「随取随用，不必署名」**；两者冲突时改文案，不改协议。
 - **发 Release**：`gh release create <tag> --title … --notes-file notes.md --latest <zip>`；只改说明时 `gh release edit <tag> --notes-file …`（不动附件），附件重打后用 `gh release upload <tag> --clobber <zip>`。
 - **tag 必须钉在 zip 那版源码上**：先建 Release、后补提交（改版本号、修文案）时，tag 会留在旧提交，冲着 tag 翻源码的人拿到的与 zip 不一致。→ 补完提交后 `git tag -f <tag> <HEAD>` + `git push -f origin refs/tags/<tag>`，再用 `gh api repos/…/git/ref/tags/<tag> --jq .object.sha` 核等于 `git rev-parse HEAD`。
-- **附件按服务端摘要核**：`gh api repos/…/releases/tags/<tag> --jq '.assets[]|"\(.name) \(.size) \(.state) \(.digest)"'` 的 digest 就是 sha256，与本机 `sha256sum <zip>` 逐字对；`gh release view --json` **没有 `isLatest` 字段**（只有 apiUrl/assets/author/body/createdAt/id/isDraft/isPrerelease/name/publishedAt/tagName/targetCommitish/tarballUrl/uploadUrl/url/zipballUrl），Latest 看 `gh release list` 的列。
+- **附件按服务端摘要核**：`gh api repos/…/releases/tags/<tag> --jq '.assets[]|"\(.name) \(.size) \(.state) \(.digest)"'` 的 digest 就是 sha256，与本机 `sha256sum <zip>` 逐字对；`gh release view --json` **没有 `isLatest` 字段**（可用字段只有 `apiUrl`、`assets`、`author`、`body`、`createdAt`、`id`、`isDraft`、`isPrerelease`、`name`、`publishedAt`、`tagName`、`targetCommitish`、`tarballUrl`、`uploadUrl`、`url`、`zipballUrl`），Latest 看 `gh release list` 的列。
 - 推完必须复核三重：`gh repo view --json visibility,licenseInfo,repositoryTopics`、`gh api repos/…/git/trees/main?recursive=1 --jq '[.tree[]|select(.type=="blob")]|length'`、`gh release view --json assets`。别信 `gh repo create` 那一行输出。
+## References
+
+<!-- gen:references -->
+
+- `references/agent-briefs.md` — 子代理简报模板（实测可用）
+- `references/assembly-and-scale.md` — 全书装配、整本缩放诊断、索引页码
+- `references/front-matter-and-toc.md` — 封面与目录：样书《基础有机化学》骨相
+- `references/national-standards.md` — 国家教材规范：可执行清单
+- `references/spec-v3.md` — 教材规格 v3（样子 / 文风 / 图 / 附录）
