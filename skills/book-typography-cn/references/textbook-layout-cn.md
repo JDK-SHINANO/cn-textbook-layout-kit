@@ -200,7 +200,7 @@ PNG 里的字是像素，插进版心一缩放就糊，字号也不再是设计�
 
 - matplotlib 存 **SVG** 并设 `svg.fonttype='none'`——文字留在 `<text>` 里，不烙进位图；
 - 画布**校准到最终印刷宽度**（版心 180mm → `width="510.24pt"`），插入时不缩放，图内 8.5pt 就是纸上 8.5pt；
-- `bbox_inches="tight"` 会按内容重算尺寸，`set_size_inches()` 不能保证输出宽度 → 两遍法：存一次读 `width="…pt"`，按「目标/实际」缩放画布再存一次（`scripts/save_svg_figure.py`）。实测 tight 裁切后仍差 2–10mm（170–179mm），宁可靠 `text-align:center` 居中差几毫米，也不要拉伸；
+- `bbox_inches="tight"` 会按内容重算尺寸，`set_size_inches()` 不能保证输出宽度 → 两遍法：存一次读 `width="…pt"`，按「目标/实际」缩放画布再存一次（`src/save_svg_figure.py`）。实测 tight 裁切后仍差 2–10mm（170–179mm），宁可靠 `text-align:center` 居中差几毫米，也不要拉伸；
 - 复验：PyMuPDF 抽 span，图内标签应是真文本、`size`≈设计值（Chromium 把 SVG 文字落成 Type3，仍是矢量、可提取、印得清，只有复制粘贴会断字）。
 - md 里把 `图/x.png` 改成 `图/x.svg`（构建脚本里一条 `re.sub` 即可），并确认 `out/图` 也指向出图目录。
 
@@ -212,7 +212,7 @@ PNG 里的字是像素，插进版心一缩放就糊，字号也不再是设计�
 
 ### 几何参数与读者对齐
 
-用户说「感觉不对」「好像不贴着页边」时，先量再答，且**给图不给字数**：`scripts/page_guides.py 书.pdf 页号 --v 18.5,52.5 --crop 8,55,70,95` 出带毫米参考线的放大裁切图，红线一压，争议立即消。多数情况是两处本同一个数，窄的是另一样东西（如边注 26 而副区 30）。
+用户说「感觉不对」「好像不贴着页边」时，先量再答，且**给图不给字数**：`src/page_guides.py 书.pdf 页号 --v 18.5,52.5 --crop 8,55,70,95` 出带毫米参考线的放大裁切图，红线一压，争议立即消。多数情况是两处本同一个数，窄的是另一样东西（如边注 26 而副区 30）。
 
 ### 表格列宽：按内容算，不交给浏览器
 
@@ -270,7 +270,7 @@ PNG 里的字是像素，插进版心一缩放就糊，字号也不再是设计�
 
 ## 七、量具
 
-`scripts/measure_pdf.py`（PDF 实测字号/行距/版心/行字数）需 pymupdf，系统 python 无此模块时用 `${PYMUPDF:-python3}` 跑。
+`src/measure_pdf.py`（PDF 实测字号/行距/版心/行字数）需 pymupdf，系统 python 无此模块时用 `${PYMUPDF:-python3}` 跑。
 
 **量线宽不能用栅格阈值**：1200 dpi 下数暗像素会因抗锯齿把 1pt 量成 0.72pt；也不看 `dr["width"]`（Chromium 的边框多是填充矩形、width 为空）。正解：遍历 `page.get_drawings()` 的 `re` 项，取 `rect.height`（单位已是 pt），长度筛 `rect.width > 60mm`。**它的版心 / 每行字数是全页墨迹的合并统计**，带副区或图表时虚高（量出 46 字而实际 33 字）；判正文宽度改用单页 span bbox：遍历 `page.get_text("dict")` 的 spans，滤掉 y<20mm 的页眉，取 x0/x1 极值——顺便就能核「左白 = 右白」与「副区左沿 = 版心左沿」。
 

@@ -27,7 +27,7 @@ HTML/pandoc 的产物要排成书的形态，不是网页的形态。起作用�
 
 ## 十条硬规则（都有量）
 
-1. **先量，再改**。动手前从现有 PDF 量四个数：正文实际字号(pt)、行距(pt)、每行字数、四边页边距(mm)，用 `scripts/measure_pdf.py`。CSS 里写 10.5pt，印出来未必是 10.5pt。脚本的「版心 / 每行字数」两项会虚高：它把全页墨迹与 span 合并统计，带副区、图表、页眉时偏大；正文宽度要用单页 span bbox 复核，滤掉 y<20mm 的页眉。判「有没有被整页缩放」看字号直方图，不看中位数：表格字（8.8pt）、图注（8.5pt）、题解字会把中位数拉下去，一本书表多时正文 10.5 也会被报成 8.8。按页统计 `Counter(round(span.size,2))`，按字符数排序，正文号必须排第一。
+1. **先量，再改**。动手前从现有 PDF 量四个数：正文实际字号(pt)、行距(pt)、每行字数、四边页边距(mm)，用 `src/measure_pdf.py`。CSS 里写 10.5pt，印出来未必是 10.5pt。脚本的「版心 / 每行字数」两项会虚高：它把全页墨迹与 span 合并统计，带副区、图表、页眉时偏大；正文宽度要用单页 span bbox 复核，滤掉 y<20mm 的页眉。判「有没有被整页缩放」看字号直方图，不看中位数：表格字（8.8pt）、图注（8.5pt）、题解字会把中位数拉下去，一本书表多时正文 10.5 也会被报成 8.8。按页统计 `Counter(round(span.size,2))`，按字符数排序，正文号必须排第一。
 2. **警惕整页缩放**。Chrome 打印按「适合可打印宽度」整本等比缩小：文档里只要有一处元素宽过可打印区（本书 180 mm），全书一起缩。实测两例，0.889 与 0.84：边距分毫不差，字号全小一号，单页极难发现。来源四个，逐个堵：① 超宽行间公式，`.katex-display{max-width:100%;overflow-x:auto}`；② `main{padding-left:34mm}` 这类把副区写进 padding 的，改成 `main > *{margin-left:34mm}`；③ `body{width:210mm; padding:22mm 15mm}` 在打印里照样生效，210+30=240 mm，要在 `@media print` 里补 `html,body{width:auto;margin:0;padding:0}`，边距只由 `@page` 给；④ pandoc 给部分表写行内 `style="width:100%"`，100% 按版心 180 mm 算，再叠 34 mm 左边距就是 214 mm，`max-width:100%` 拦不住（它本身就是 100%），必须 `table:not(.wide){width:146mm !important}`，并在成形阶段给列宽合计 ≥176 mm 的表补 `class="wide"`。定位用 `document.body.scrollWidth`：等于 214 mm 是「宽元素＋副区边距」，等于 240 mm 是 body 自带宽度；再逐个量 `getBoundingClientRect().right`，跳过 `closest("svg")` 与 `closest("math")`（KaTeX 伸缩字形是 `width="400em"` 的内联 SVG，量出来 5000+ px，会淹没结果）。
 3. **正文 10.5pt / 行距 17pt**（1.62），**每行 38–42 字**。行长超过 45 字，回扫时容易丢行。教材留左副区时（`references/textbook-layout-cn.md`），主栏常压到 33–39 字，这是参照书的实况，不算违规。
 4. **段距归零，界线交给缩进**：`p{margin:0;text-indent:2em}`。网页式的“空行分段”是中文书里最扎眼的毛病。
@@ -50,13 +50,13 @@ HTML/pandoc 的产物要排成书的形态，不是网页的形态。起作用�
     - **加粗是重点信号，不是语气**。每千字 < 4 处（约一章 30 处内）；公式、数据、结论里只标真正要背的那一句。版式标记（`**旁注**`、`**本章要解决的问题**`、`**这张图要读出什么**`）不算在内，且绝不可动。
     - **专有名词首现要标**：`<span class="term">截面</span>（<span class="en">cross section</span>）`——中文主题蓝黑体、括号内英文真斜体（`DejaVu Serif` italic，不要合成斜体）；同一词全章只标一次；不标在标题、旁注、表格、图注里。英文名取本章「本章术语」表里的那个，不自编。
 
-    改文风时**数字与公式一个都不许动**：交稿后抽数字串做集合比对（`set(v6 数字) == set(v7 数字)`，相等即未丢未改），汉字数只许少几十（删废话的量）。交稿前跑 `scripts/style_lint_cn.py <章.md>`：AI 腔 0、括号编号 0、**正文圈号 0**（表格里的不算）、加粗 < 4/千字、term ≥ 8。改后由主上下文复核，子代理的自评会漏掉“表崩了”这类版式事故，文风项要用脚本的实际输出说话。
+    改文风时**数字与公式一个都不许动**：交稿后抽数字串做集合比对（`set(v6 数字) == set(v7 数字)`，相等即未丢未改），汉字数只许少几十（删废话的量）。交稿前跑 `src/style_lint_cn.py <章.md>`：AI 腔 0、括号编号 0、**正文圈号 0**（表格里的不算）、加粗 < 4/千字、term ≥ 8。改后由主上下文复核，子代理的自评会漏掉“表崩了”这类版式事故，文风项要用脚本的实际输出说话。
 
 ## 工作流
 
 ```bash
 # 1. 量现状
-python3 scripts/measure_pdf.py 书.pdf            # 字号/行距/页边距/每行字数
+python3 src/measure_pdf.py 书.pdf            # 字号/行距/页边距/每行字数
 # 2. 定版心（A4: 版心 148×234，天头 28 地脚 35 订口 32 切口 30）
 # 3. 套 CSS（references/html-book-css.md 有整段可粘）
 # 4. 重建 → 再量一次，字号必须回到 10.4–10.6pt
@@ -68,7 +68,7 @@ python3 scripts/measure_pdf.py 书.pdf            # 字号/行距/页边距/每�
 1. **挑一章图、表、公式、习题俱全的典型章**，建 `版式对照_<风格>/` 目录：`build.sh`（备料→pandoc→chromium）+ `工具/shape.py`（章首页/节号牌/栏目条/边注等成形）+ `工具/finish.py`（页眉页码书签）+ `工具/对照图.py`（新旧并置）。
 2. **新旧并置出图**，两版按同一 px/mm 缩放，标上「旧 A4 210×297 / 新 …」。用户凭这个判合身与否，只给 PDF 他不会翻。
 3. **几何参数只存一处**：版心宽、`--side`（副区）、`@page` 边距各有一个数，其余全由它算。改开本只动 `@page size` + 边距 + `finish.py` 的 `PAGE_W`；改副区才动 `--side` 与让位值。散成字面量，必出「标题缩进了、正文没缩进」。
-4. **改完三重复测**：字号中位数回到 10.4–10.6（防整页缩放）；左白 = 右白；副区左沿 = 版心左沿 = 页眉线起端（用 `scripts/page_guides.py` 出图核）。
+4. **改完三重复测**：字号中位数回到 10.4–10.6（防整页缩放）；左白 = 右白；副区左沿 = 版心左沿 = 页眉线起端（用 `src/page_guides.py` 出图核）。
 5. 定版后才推全书：图重出、题重排、目录封面索引重走，并先算出页数代价。逐章可并行两路，一路重写正文（拆段、旁注压到 ≤60 字、图内细则移入图注），一路写三列式题解；两路都只准写 md，构建与版式留在主上下文。子代理回来必须自己复核：数字抽比、旁注逐条数汉字、`shape.py` 的计数行（章首页/节题/边注/破栏图）对不对得上。它们的自评会漏掉“表崩了”这类版式事故。
 
 ## 前置页：封面、版权页与目录（成书必备）
@@ -112,8 +112,8 @@ python3 scripts/measure_pdf.py 书.pdf            # 字号/行距/页边距/每�
 - [ ] 图、表默认都在主栏（图 146mm 档）；只有 `.wide` 的才破栏，且破栏个数是少数
 - [ ] 任一表页：无竖线、无斑马纹，表跨页时表头重复；**上下线比表头线粗**（实测 1.5pt / 0.75pt，别的值会被取整成同一档），表内容（含数字格）一律左对齐；坐标轴与表粗线同磅、网格与表细线同磅
 - [ ] 每条表题都是真 `<caption>`（`grep -c '<caption'` 与表数对得上）
-- [ ] 图内字与图注同号（8.5pt；上下标 5.9–7.3 属正常）；**若图是 SVG，抽 span 看 `size` 是否等于设计值**（`scripts/save_svg_figure.py` 的 `verify_in_pdf`）。抽到的是 Type3 字体、抽不出字，说明图成了位图
-- [ ] 填充率 <50% 的页 <5%（`scripts/page_fill.py`）
+- [ ] 图内字与图注同号（8.5pt；上下标 5.9–7.3 属正常）；**若图是 SVG，抽 span 看 `size` 是否等于设计值**（`src/save_svg_figure.py` 的 `verify_in_pdf`）。抽到的是 Type3 字体、抽不出字，说明图成了位图
+- [ ] 填充率 <50% 的页 <5%（`src/page_fill.py`）
 - [ ] 目录不出现“只剩三四行”的孤页
 - [ ] 封面单独一页，页眉页脚正确，书签可跳
 
@@ -123,16 +123,16 @@ python3 scripts/measure_pdf.py 书.pdf            # 字号/行距/页边距/每�
 - `references/design-principles.md` —— 完整的书籍设计要义（16 节，含证据与出处：Tschichold、Bringhurst、Tufte、W3C clreq、行距与眼动研究）
 - `references/html-book-css.md` —— 可直接粘的打印 CSS 与逐条改造清单（含 0.889 缩放事故的定位过程）
 - `references/diagnosis-checklist.md` —— 逐页诊断表（症状 → 违背哪条原则 → 建议数值）
-- `scripts/style_lint_cn.py` —— 正文文风检查：AI 腔/括号编号/加粗密度/术语首现（`--strict` 可直接做构建闸门）
-- `scripts/fit_table_columns.py` —— 按内容算表格列宽（圈号断点→逐列最长条→余量均分→开副区→标点断行迭代），把 mm 值写回 `colgroup` 并挂 `class="wide"`
-- `scripts/save_svg_figure.py` —— 图存矢量字 SVG 并把画布校准到印刷宽度（两遍法），附 PDF 内抽字验磅值
-- `scripts/page_guides.py` —— 在指定页画毫米参考线（可裁切放大）。几何对齐有争议时出这张图，比口头解释有效
+- `src/style_lint_cn.py` —— 正文文风检查：AI 腔/括号编号/加粗密度/术语首现（`--strict` 可直接做构建闸门）
+- `src/fit_table_columns.py` —— 按内容算表格列宽（圈号断点→逐列最长条→余量均分→开副区→标点断行迭代），把 mm 值写回 `colgroup` 并挂 `class="wide"`
+- `src/save_svg_figure.py` —— 图存矢量字 SVG 并把画布校准到印刷宽度（两遍法），附 PDF 内抽字验磅值
+- `src/page_guides.py` —— 在指定页画毫米参考线（可裁切放大）。几何对齐有争议时出这张图，比口头解释有效
 
 ## Verification（验证）
 
 ```bash
-python3 scripts/measure_pdf.py 书.pdf
-python3 scripts/style_lint_cn.py <章.md> --strict
+python3 src/measure_pdf.py 书.pdf
+python3 src/style_lint_cn.py <章.md> --strict
 ```
 
 期望：`measure_pdf.py` 打出字号／行距／页边距／每行字数四数，正文号落在 10.4–10.6pt（更低即全书被整页缩放）；`style_lint_cn.py` 报 AI 腔 0、括号编号 0、正文圈号 0、加粗 <4/千字、term ≥8，末行「结论：达标」、退出码 0（`--strict` 放在文件路径之后，未达标才 `exit 1`）。

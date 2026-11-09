@@ -10,14 +10,14 @@
 
 | | |
 |---|---|
-| <img src="samples/校_ch05_章首.png" width="420"> | <img src="samples/校_ch05_表1.png" width="420"> |
+| <img src="assets/samples/校_ch05_章首.png" width="420"> | <img src="assets/samples/校_ch05_表1.png" width="420"> |
 | 章首页：左边色砖带章号，正文从副区右侧起排 | 三线表：上下 1.5 pt、表头线 0.75 pt，列宽按内容算 |
-| <img src="samples/校_ch05_图1.png" width="420"> | <img src="samples/校_ch05_图2.png" width="420"> |
+| <img src="assets/samples/校_ch05_图1.png" width="420"> | <img src="assets/samples/校_ch05_图2.png" width="420"> |
 | 示意图 58 mm，标注全留，图内字就是图注字 8.5 pt | 数据图 65 mm，图内不留解释字，只剩轴和曲线 |
-| <img src="samples/校_ch05_旁注.png" width="420"> | <img src="samples/校_ch05_题解.png" width="420"> |
+| <img src="assets/samples/校_ch05_旁注.png" width="420"> | <img src="assets/samples/校_ch05_题解.png" width="420"> |
 | 旁注落左副区，正文照常往下走 | 书末题解：问题／解（公式｜虚线｜解析）／答 |
 
-成品是 20 页的 `samples/样张-第5章.pdf`（2.5 MB）。正文和题解的 Markdown 也在同一目录，可以直接拿去改。
+成品是 20 页的 `assets/samples/样张-第5章.pdf`（2.5 MB）。正文和题解的 Markdown 也在同一目录，可以直接拿去改。
 
 ## 规格
 
@@ -48,7 +48,7 @@ PyMuPDF 不在系统 python 里时，构建时用 `PYMUPDF=<解释器>` 指过�
   src/part0.md          卷首
   code/fig_ch01.py      插图脚本（可选）
   图/                   插图输出
-  版式/                 把 templates/ 和 tools/ 放进来
+  版式/                 把 assets/templates/ 和 src/ 放进来
 ```
 
 ```bash
@@ -56,7 +56,7 @@ cd 书目录/版式
 
 # 单章：先验管线
 python3 工具/figs.py ch01                 # 有插图时先出图
-cp templates/src/template.html src/         # 首次
+cp assets/templates/src/template.html src/         # 首次
 PYMUPDF=python3 ./build.sh ch01 ch01.md tijie_ch01.md
 
 # 全书：封面 → 版权页 → 目录 → 卷首 → 各章 → 题解章 → 附录 A–E
@@ -68,7 +68,7 @@ OUTNAME=全书 ./build_book.sh
 
 `build_book.sh` 在这个基础上加封面、版权页、三层目录、附录，最后把真实页码回填进目录和术语索引。
 
-出完先量字号：`python3 skills/book-typography-cn/scripts/measure_pdf.py out/sample.pdf`。正文该在 10.4–10.6 pt。要是读到 8.7 pt，说明整页被缩放了，先看下面第 1 条。
+出完先量字号：`python3 skills/book-typography-cn/src/measure_pdf.py out/sample.pdf`。正文该在 10.4–10.6 pt。要是读到 8.7 pt，说明整页被缩放了，先看下面第 1 条。
 
 全书装一遍约三分半，Chromium 分页渲染吃掉其中三分钟。少装几遍，比优化脚本划算。
 
@@ -77,9 +77,9 @@ OUTNAME=全书 ./build_book.sh
 ```
 skills/hep-textbook-rebuild/   整书重排流程：三十条踩过的坑、子代理任务模板、装配与缩放诊断
 skills/book-typography-cn/     中文书排版通用知识与量尺脚本
-tools/                         22 个 Python 工具，外加《图表规格 v3》
-templates/                     template.html（全部 CSS）+ build.sh（单章）+ build_book.sh（全书）
-samples/                       第 5 章正文、题解、20 页成品 PDF、六张示范页
+src/                           22 个 Python 工具，外加《图表规格 v3》
+assets/templates/              template.html（全部 CSS）+ build.sh（单章）+ build_book.sh（全书）
+assets/samples/                第 5 章正文、题解、20 页成品 PDF、六张示范页
 ```
 
 | 工具 | 作用 |
