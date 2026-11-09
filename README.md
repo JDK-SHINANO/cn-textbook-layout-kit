@@ -88,7 +88,7 @@ assets/samples/                第 5 章正文、题解、20 页成品 PDF、六
 | `normalize_captions.py` `fix_quotes.py` | 表题挪到表后、直引号换中文引号 |
 | `figs.py` `bookstyle.py` `figstyle_v3.py` | 出图：双色 + SVG 矢量字，画布按印刷宽度校准 |
 | `figcheck.py` | 按《图表规格 v3》验收 SVG：宽高、基准字号、线宽档 |
-| `文风检查.py` `验收章.py` `规范检查.py` `term对齐.py` | AI 腔与加粗密度、章骨架体检、GB 3100/3101/3102 硬伤扫描、术语表与正文首现对齐 |
+| `文风检查.py` `验收章.py` `规范检查.py` `term对齐.py` | AI 腔与加粗密度、章节结构体检、GB 3100/3101/3102 硬伤扫描、术语表与正文首现对齐 |
 | `对照图.py` `线宽.py` `pages.py` `check_left.py` `measure.py` | 新旧页并置、量线宽、抽页、量左沿、从书影量版式参数 |
 
 ## 依赖
