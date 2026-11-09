@@ -198,7 +198,7 @@ matplotlib 里设 `axes.linewidth=1.5`、`grid.linewidth=0.75`、`xtick/ytick.ma
 
 PNG 里的字是像素，插进版心一缩放就糊，字号也不再是设计值。做法是让图只提供图形、文字交给排版：
 
-- matplotlib 存 **SVG** 并设 `svg.fonttype='none'`——文字留在 `<text>` 里，不烙进位图；
+- matplotlib 存 **SVG** 并设 `svg.fonttype='none'`——文字留在 `<text>` 里，不转为位图；
 - 画布**校准到最终印刷宽度**（版心 180mm → `width="510.24pt"`），插入时不缩放，图内 8.5pt 就是纸上 8.5pt；
 - `bbox_inches="tight"` 会按内容重算尺寸，`set_size_inches()` 不能保证输出宽度 → 两遍法：存一次读 `width="…pt"`，按「目标/实际」缩放画布再存一次（`src/save_svg_figure.py`）。实测 tight 裁切后仍差 2–10mm（170–179mm），宁可靠 `text-align:center` 居中差几毫米，也不要拉伸；
 - 复验：PyMuPDF 抽 span，图内标签应是真文本、`size`≈设计值（Chromium 把 SVG 文字落成 Type3，仍是矢量、可提取、印得清，只有复制粘贴会断字）。

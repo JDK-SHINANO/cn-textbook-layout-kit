@@ -4,7 +4,7 @@
 
 Write a book in Markdown, typeset it as a Chinese textbook PDF at 210 × 260 mm.
 
-A 34 mm side column on the left holds margin notes and problem numbers, so the main text runs uninterrupted. Column widths in three-line tables are computed from content instead of guessed as percentages. Figures are SVG, and their lettering stays vector, so the type survives zooming. Back matter gets a solutions chapter, appendices and a term index.
+A 34 mm side column on the left holds margin notes and problem numbers, and the body text sits in the main column. Column widths in three-line tables are computed from the content. Figures are SVG, and their lettering stays vector, so it remains sharp when zoomed. Back matter gets a solutions chapter, appendices and a term index.
 
 The page design follows *Basic Organic Chemistry*, 4th edition (Peking University Press). Only the layout conventions are borrowed; none of its content is included.
 
@@ -71,7 +71,7 @@ A full build takes about three and a half minutes, three of which go to Chromium
 
 ## Layout
 ```
-skills/hep-textbook-rebuild/   whole-book rebuild workflow: thirty pitfalls, subagent task templates, assembly and scaling diagnostics
+skills/hep-textbook-rebuild/   whole-book rebuild workflow: thirty pitfalls, subagent task templates, assembly and scaling checks
 skills/book-typography-cn/     general Chinese book typography plus the measuring scripts
 src/                           22 Python tools, plus Figure Specification v3
 assets/templates/              template.html (all the CSS) + build.sh (one chapter) + build_book.sh (whole book)
@@ -88,7 +88,7 @@ assets/samples/                chapter 5 text, solutions, the 20-page PDF, six s
 | `normalize_captions.py` `fix_quotes.py` | Move table captions below the table; convert straight quotes to Chinese quotation marks |
 | `figs.py` `bookstyle.py` `figstyle_v3.py` | Figure output: two colours plus vector SVG lettering, canvas calibrated to the printed width |
 | `figcheck.py` | Check SVGs against Figure Specification v3: dimensions, base font size, line-weight steps |
-| `文风检查.py` `验收章.py` `规范检查.py` `term对齐.py` | AI-flavoured prose and bold density, chapter skeleton checks, GB 3100/3101/3102 violations, glossary vs first-mention alignment |
+| `文风检查.py` `验收章.py` `规范检查.py` `term对齐.py` | AI-flavoured prose and bold density, chapter structure checks, GB 3100/3101/3102 violations, glossary vs first-mention alignment |
 | `对照图.py` `线宽.py` `pages.py` `check_left.py` `measure.py` | Old and new pages side by side, line-width measurement, page extraction, left-edge measurement, deriving layout parameters from a page image |
 
 ## Requirements
@@ -136,7 +136,7 @@ Download the whole repository, hand it to any AI that can read files, and add:
 
 > This is a Chinese textbook typesetting kit. Read `skills/hep-textbook-rebuild/SKILL.md` and `docs/套件说明.md`, then follow the workflow there to typeset the chapters under my `src/` into a book.
 
-It will read the parameters, adjust paths and run the scripts itself. If it gets stuck on the environment, paste the error back.
+Ask it to read the parameters, adjust paths and run the scripts; whether that works depends on the environment and the model. If it gets stuck on the environment, paste the error back.
 
 ## License
 MIT, see [LICENSE](LICENSE). Code and docs are free to use and change; keep the copyright notice. The text in `samples` is the author's own book and serves only as a layout example.

@@ -1,4 +1,4 @@
-# 全书装配、整本缩放诊断、索引页码
+# 全书装配、整本缩放判定、索引页码
 
 本册只记「一本书从 17 章 md 装成 PDF」的工程细节与两个隐性故障。版式参数见 SKILL.md 第一节，骨架／文风见 `spec-v3.md`。
 
@@ -32,7 +32,7 @@ Chrome 打印默认「适合可打印宽度」。文档里只要有一处元素�
 | `body{width:210mm; padding:22mm 15mm}` 仍未退出 | 210+30=240 mm | 打印块：`html,body{width:auto;margin:0;padding:0}`，页边距全交 `@page` |
 | pandoc `<table style="width:100%">` | 100% 按 180 mm 算，再叠 34 mm 左边距 = 214 mm | `table:not(.wide){width:146mm !important}`；`shape.py` 的 `ensure_wide()` 在定宽后 colgroup 合计 ≥176 mm 时补 `class="wide"`；`table.wide{width:180mm;margin-left:0 !important}` 不分层级 |
 
-## 三、诊断：别信「字号中位数」
+## 三、判定：别信「字号中位数」
 
 `measure_pdf.py` 的中位数按全页字符算，表格字（8.8 pt）、图注（8.5 pt）、题解字都会把中位数拉下来。一本书表格多时，正文 10.48 pt 也能报成 8.8。判据换成**按页的字号直方图**：
 

@@ -4,7 +4,7 @@
 
 用 Markdown 写书，排成 210×260 mm 的中文教材 PDF。
 
-左边 34 mm 的副区留给旁注和题号，正文不受干扰。三线表的列宽按内容算，不靠猜百分比。插图走 SVG，字是矢量的，放大不糊。书末能出题解章、附录和术语索引。
+左边 34 mm 的副区留给旁注和题号，正文照常排在主栏。三线表的列宽按内容计算。插图走 SVG，字是矢量的，放大后仍清晰。书末能出题解章、附录和术语索引。
 
 版式参照北京大学出版社《基础有机化学》第 4 版，内容与它无关。
 
@@ -71,8 +71,8 @@ OUTNAME=全书 ./build_book.sh
 
 ## 目录
 ```
-skills/hep-textbook-rebuild/   整书重排流程：三十条踩过的坑、子代理任务模板、装配与缩放诊断
-skills/book-typography-cn/     中文书排版通用知识与量尺脚本
+skills/hep-textbook-rebuild/   整书重排流程：三十条踩过的坑、子代理任务模板、装配与缩放判定
+skills/book-typography-cn/     中文书排版通用知识与测量脚本
 src/                           22 个 Python 工具，外加《图表规格 v3》
 assets/templates/              template.html（全部 CSS）+ build.sh（单章）+ build_book.sh（全书）
 assets/samples/                第 5 章正文、题解、20 页成品 PDF、六张示范页
@@ -88,7 +88,7 @@ assets/samples/                第 5 章正文、题解、20 页成品 PDF、六
 | `normalize_captions.py` `fix_quotes.py` | 表题挪到表后、直引号换中文引号 |
 | `figs.py` `bookstyle.py` `figstyle_v3.py` | 出图：双色 + SVG 矢量字，画布按印刷宽度校准 |
 | `figcheck.py` | 按《图表规格 v3》验收 SVG：宽高、基准字号、线宽档 |
-| `文风检查.py` `验收章.py` `规范检查.py` `term对齐.py` | AI 腔与加粗密度、章节结构体检、GB 3100/3101/3102 硬伤扫描、术语表与正文首现对齐 |
+| `文风检查.py` `验收章.py` `规范检查.py` `term对齐.py` | AI 腔与加粗密度、章节结构检查、GB 3100/3101/3102 硬伤扫描、术语表与正文首现对齐 |
 | `对照图.py` `线宽.py` `pages.py` `check_left.py` `measure.py` | 新旧页并置、量线宽、抽页、量左沿、从书影量版式参数 |
 
 ## 依赖
@@ -136,7 +136,7 @@ PyMuPDF 不在系统 python 里时，构建时用 `PYMUPDF=<解释器>` 指过�
 
 > 这是中文教材排版套件。读 `skills/hep-textbook-rebuild/SKILL.md` 和 `docs/套件说明.md`，然后按里面的流程，把我 `src/` 下的章节排成书。
 
-它会自己读参数、改路径、跑脚本。卡在环境上就把报错贴回去。
+让它读参数、改路径、跑脚本；能否跑通取决于环境与模型能力。卡在环境上就把报错贴回去。
 
 ## 许可
 MIT，见 [LICENSE](LICENSE)。代码和文档都可以直接用、直接改，保留版权声明即可。`samples` 里的正文是作者自己的书，只作排版示例。
